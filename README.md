@@ -9,6 +9,8 @@ Anel é unidirecional
 Jogo Uno
 
 Regras  -
+
+
     - Jogador com bastão faz a jogada
     
     - Depois de escolher a carta, enviar uma mensagem informado a jogada:
