@@ -1,6 +1,6 @@
 // adicionar IFDEF
 
-int ConexaoRawSocket(char *device);
+int ConexaoDgramSocket(char *device);
 
 typedef struct Mensagem{
     

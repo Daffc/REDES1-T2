@@ -3,21 +3,29 @@
 
 CC     = gcc -std=c11 -g
 
-EXECS  = UNO 
+EXECS  = UNO jogador
 
 # arquivos-objeto
-objects = UNO.o  ConexaoRawSocket.o
+objects = UNO.o jogador.o ConexaoDgramSocket.o
 
 all:  $(EXECS)
 
-UNO: UNO.o ConexaoRawSocket.o 
-	$(CC) UNO.o ConexaoRawSocket.o -o UNO 
+UNO: UNO.o ConexaoDgramSocket.o 
+	$(CC) UNO.o ConexaoDgramSocket.o -o UNO 
 
-UNO.o : UNO.c ConexaoRawSocket.h Estruturas.h
+jogador: jogador.o ConexaoDgramSocket.o 
+	$(CC) jogador.o ConexaoDgramSocket.o -o jogador 
+
+
+UNO.o : UNO.c ConexaoDgramSocket.h Estruturas.h
 	$(CC) -c UNO.c 
 
-ConexaoRawSocket.o : ConexaoRawSocket.c ConexaoRawSocket.h
-	$(CC) -c ConexaoRawSocket.c 
+
+jogador.o : jogador.c ConexaoDgramSocket.h Estruturas.h
+	$(CC) -c jogador.c 
+
+ConexaoDgramSocket.o : ConexaoDgramSocket.c ConexaoDgramSocket.h
+	$(CC) -c ConexaoDgramSocket.c 
 
 
 clean:

@@ -10,14 +10,14 @@
 #include <arpa/inet.h>
 
 
-int ConexaoRawSocket(char *device)
+int ConexaoDgramSocket(char *device)
 {
   int soquete;
   struct ifreq ir;
   struct sockaddr_ll endereco;
   struct packet_mreq mr;
 
-  soquete = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));  	/*cria socket*/
+  soquete = socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_ALL));  	/*cria socket*/
   if (soquete == -1) {
     printf("Erro no Socket\n");
     exit(-1);
