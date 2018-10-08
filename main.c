@@ -29,7 +29,7 @@ int main(int argc, char **argv){
     struct hostent *h;
 
     // não precisa ser necessariamente o localhost, pode ser usado da entrada.
-    if ((h = gethostbyname("localhost")) == NULL){
+    if ((h = gethostbyname(argv[1])) == NULL){
         printf("Não identifiquei meu endereço\n");
         exit(1);
     }
@@ -88,27 +88,38 @@ int main(int argc, char **argv){
         exit(1);
     }
 
-    char *buffer = malloc(50);
+    char *buffer = "there something happenning";
     char *recebe_buffer = malloc(50);
 
-    buffer = "there something happenning";
+    // buffer = "there something happenning";
 
+    socklen_t len = sizeof server;
 
-    
+    printf("%ld\n",strlen(buffer));
 
-
+    printf("player %d\n",player);
     if(player == 0){
-        while(1){        
-        int envia = send(c,buffer,sizeof(buffer),0);
-        printf("Estado do envio : %d\n",envia);
+        // while(1){
+        int envia = sendto(c,buffer,strlen(buffer),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));
+        perror("send");
+        if(envia == -1){
+            exit(1);
         }
+        printf("mensagem : %s ... enviada\n",buffer);
+        // printf("Estado do envio : %d\n",envia);
+        // }
+        exit(1);
     }else{
         while(1){
-            printf("aguardando envio da mensagem");
-            int recebe = read(s,recebe_buffer,sizeof(buffer));
-            printf("Estado do recebimento : %d",recebe);
+            int test = recvfrom(s,recebe_buffer,strlen(buffer),MSG_DONTWAIT,(struct sockaddr * ) &server, &len);
+            if(test > -1){
+                printf("%s\n",recebe_buffer);
+                printf("%ld\n",strlen(recebe_buffer));
+            }
         }
     }
+
+    
 
     return 0;
 }
