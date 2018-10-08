@@ -22,7 +22,7 @@ int main(int argc, char **argv){
         exit(1);
     }
 
-    int player = atoi(argv[2]);
+    int player = atoi(argv[5]);
 
     printf("Inicia processo de montagem do socket_server\n");
 
@@ -56,9 +56,6 @@ int main(int argc, char **argv){
         exit(1);
     }
 
-
-
-
     printf("Inicia processo de montagem do socket_client\n");
 
     char *host;
@@ -74,6 +71,7 @@ int main(int argc, char **argv){
         printf("não consegui me conectar ao ip do servidor\n");
         exit(1);
     }
+
 
     struct sockaddr_in sockaddr_in_client;
 
@@ -95,13 +93,18 @@ int main(int argc, char **argv){
 
     buffer = "there something happenning";
 
+
+    
+
+
     if(player == 0){
-        while(1){
+        while(1){        
         int envia = send(c,buffer,sizeof(buffer),0);
-        printf("Estado do envio : %d",envia);
+        printf("Estado do envio : %d\n",envia);
         }
     }else{
         while(1){
+            printf("aguardando envio da mensagem");
             int recebe = read(s,recebe_buffer,sizeof(buffer));
             printf("Estado do recebimento : %d",recebe);
         }
