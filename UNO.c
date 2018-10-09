@@ -2,10 +2,29 @@
 #include "Estruturas.h"
 
 #include <unistd.h>
+#include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-int main(){
+void Embaralha(Carta * baralho){
+    Carta aux;
+    int primeiro, segundo;
+
+    srand(time(NULL));
+
+    for(int i = 0; i < 224; i++){
+        primeiro = rand() % 55;
+        segundo = rand() % 55;
+        aux = *(baralho + primeirogit);
+        *(baralho + primeiro) = *(baralho + segundo);
+        *(baralho + segundo) = aux;
+    }
+
+}
+
+// Carta * GeraBaralho(){
+void main(int argc, char const *argv[]){
+    
     Carta card;
     Carta *baralho;
 
@@ -35,5 +54,10 @@ int main(){
         printf("cor: %d valor: %d\n", (baralho + i) -> cor, (baralho + i) -> valor);
     }
 
-    return 0;
+    Embaralha(baralho);
+    for(int i = 0; i < 56; i++){
+        printf("cor: %d valor: %d\n", (baralho + i) -> cor, (baralho + i) -> valor);
+    }
+    
+    // return baralho;
 }
