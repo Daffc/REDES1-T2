@@ -1,15 +1,7 @@
 
-#ifndef _ESTRUTURAS_
+#ifndef _UNO_
+    #define _UNO_
 
-    typedef struct Game{
-        int tipo;
-        int player;
-        int qnt_cartas;
-        struct Carta *jogada;
-        int efeito;
-        int deadlock;
-        struct Carta *Baralho;
-    }Game;
 
     enum Cores{
         AMARELO,
@@ -38,9 +30,24 @@
         enum Cores   cor;
     }Carta;
 
+    typedef struct Game{
+        int tipo;
+        int player;
+        int qnt_cartas;
+        struct Carta jogada;
+        int efeito;
+        int deadlock;
+        struct Carta Baralho[56];
+    }Game;
+    
     typedef struct Mao{
         Carta *cartas;
         int quantidade_cartas;
     }Mao;
+
+    /**
+    * Gera baralho, embaralha e devolve ponteiro para este baralho (56 cartas).
+    */
+    Carta * GeraBaralho();
 
 #endif 

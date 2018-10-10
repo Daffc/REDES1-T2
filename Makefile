@@ -3,17 +3,21 @@
 
 CC     = gcc -std=c11 -g
 
-EXECS  = UNO 
+EXECS  = main 
 
 # arquivos-objeto
 objects = UNO.o  ConexaoRawSocket.o
 
 all:  $(EXECS)
 
-UNO: UNO.o ConexaoRawSocket.o 
-	$(CC) UNO.o ConexaoRawSocket.o -o UNO 
+main: UNO.o ConexaoRawSocket.o main.o
+	$(CC) UNO.o ConexaoRawSocket.o main.o -o main 
 
-UNO.o : UNO.c ConexaoRawSocket.h Estruturas.h
+
+main.o : main.c ConexaoRawSocket.h UNO.h
+	$(CC) -c main.c 
+
+UNO.o : UNO.c ConexaoRawSocket.h UNO.h
 	$(CC) -c UNO.c 
 
 ConexaoRawSocket.o : ConexaoRawSocket.c ConexaoRawSocket.h

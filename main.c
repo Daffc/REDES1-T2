@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
-#include "Estruturas.h"
+#include "UNO.h"
 
 
 int main(int argc, char **argv){
@@ -101,66 +101,48 @@ int main(int argc, char **argv){
     dummy = malloc( sizeof(Game));
     jogo = malloc( sizeof(Game));
 
-    dummy->Baralho = malloc(sizeof(Carta) * 56);
-
-    jogo->Baralho = malloc(sizeof(Carta) * 56);
-
     int status_send;
     int status_receive;
 
     if(player == 0){
-    printf("dentro do if \n");
-    // Cria o baralho inicial
-    Carta *baralho;
+        printf("dentro do if \n");
+        // Cria o baralho inicial
+        Carta *baralho;
 
-    baralho = malloc(sizeof(Carta) * 56);
-
-        for(int i = 0; i < 12; i++){
-            if(i < 10)
-            {
-                for(int j = 0; j < 4; j++){
-                    (baralho + (i*4) + j) -> valor = i;
-                    (baralho + (i*4) + j) -> cor = j;
-                } 
-            }        
-            else{
-                for(int j = 0; j < 4; j++){
-                    (baralho + (i*4) + j) -> valor = i;
-                    (baralho + (i*4) + j) -> cor = j;
-                    (baralho + ((i+2)*4) + j) -> valor = i;
-                    (baralho + ((i+2)*4) + j) -> cor = j;                
-                } 
-            }
-        }
-	printf("depois de criar o baralho\n");
+        baralho  = GeraBaralho();
+	    printf("depois de criar o baralho\n");
 
         jogo->tipo = 0;
         jogo->player = 0;
         jogo->qnt_cartas = 56;
-        // jogo.jogada = primeira carta do player one   
+        jogo->jogada;   
         jogo->efeito = 0;
+
         // baralho embaralhado passa para a estrutura do jogo
         for(int i = 0 ; i < 56; i++){
             jogo->Baralho[i].cor = baralho[i].cor;
             jogo->Baralho[i].valor = baralho[i].valor;
         }   
+
         // adiciona na mão do player 0 as cartas
         for(int i = 55,j = 0; i > 55 - 7;i--,j++){
             Hand.cartas[j].cor = baralho[i].cor;
             Hand.cartas[j].valor = baralho[i].valor;
         } 
-	printf("apos adicionar baralho a mao \n");
-	Hand.quantidade_cartas = 7;
 
+        printf("apos adicionar baralho a mao \n");
+        Hand.quantidade_cartas = 7;
+
+        // seta em 7 o numero de cartas do player one
         for (int i = 0; i < Hand.quantidade_cartas; i++){
             printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
         }
-        // seta em 7 o numero de cartas do player one
+
         // remove as 7 cartas que foram adicionadas no 
         jogo->qnt_cartas = jogo->qnt_cartas - 7;      
 
-        status_send = sendto(c,&jogo,sizeof(Game),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
-	printf("status send %d\n",status_send);
+        status_send = sendto(c, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
+        printf("status send %d\n",status_send);
     }   
    printf("fora do if\n"); 
 
