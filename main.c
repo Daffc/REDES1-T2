@@ -97,9 +97,11 @@ int main(int argc, char **argv){
     // pior caso numero de cartas sera 23
     Hand.cartas = malloc(sizeof(char) * 23);
 
-    Game jogo; // inicia o jogo para o player 0
+    Game *jogo; // inicia o jogo para o player 0
 
-    jogo.Baralho = malloc(sizeof(Carta) * 56);
+    jogo = malloc( sizeof(Game));
+
+    jogo->Baralho = malloc(sizeof(Carta) * 56);
 
     int status_send;
     int status_receive;
@@ -130,15 +132,15 @@ int main(int argc, char **argv){
         }
 	printf("depois de criar o baralho\n");
 
-        jogo.tipo = 0;
-        jogo.player = 0;
-        jogo.qnt_cartas = 56;
+        jogo->tipo = 0;
+        jogo->player = 0;
+        jogo->qnt_cartas = 56;
         // jogo.jogada = primeira carta do player one   
-        jogo.efeito = 0;
+        jogo->efeito = 0;
         // baralho embaralhado passa para a estrutura do jogo
         for(int i = 0 ; i < 56; i++){
-            jogo.Baralho[i].cor = baralho[i].cor;
-            jogo.Baralho[i].valor = baralho[i].valor;
+            jogo->Baralho[i].cor = baralho[i].cor;
+            jogo->Baralho[i].valor = baralho[i].valor;
         }   
         // adiciona na mão do player 0 as cartas
         for(int i = 55,j = 0; i > 55 - 7;i--,j++){
@@ -153,7 +155,7 @@ int main(int argc, char **argv){
         }
         // seta em 7 o numero de cartas do player one
         // remove as 7 cartas que foram adicionadas no 
-        jogo.qnt_cartas = jogo.qnt_cartas - 7;      
+        jogo->qnt_cartas = jogo->qnt_cartas - 7;      
 
         status_send = sendto(c,&jogo,sizeof(jogo),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
 	printf("status send %d\n",status_send);
@@ -163,18 +165,18 @@ int main(int argc, char **argv){
     while(1){        
         status_receive = recvfrom(s,&jogo,sizeof(jogo),0,(struct sockaddr * ) &server, &len);
         if(status_receive > -1){
-            if(jogo.tipo == 0 && player){
+            if(jogo->tipo == 0 && player){
 		    printf("aki ocorrera o famoso acesso");
-                for(int i = jogo.qnt_cartas - 1,j = 0; i > jogo.qnt_cartas - 8;i--,j++){
-                    Hand.cartas[j].cor = jogo.Baralho[i].cor;
-                    Hand.cartas[j].valor = jogo.Baralho[i].valor;
+                for(int i = jogo->qnt_cartas - 1,j = 0; i > jogo->qnt_cartas - 8;i--,j++){
+                    Hand.cartas[j].cor = jogo->Baralho[i].cor;
+                    Hand.cartas[j].valor = jogo->Baralho[i].valor;
                 }
                 // printa as cartas for testing;
                 for (int i = 0; i < Hand.quantidade_cartas; i++){
                     printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
                 }
                 Hand.quantidade_cartas = 7;
-                jogo.qnt_cartas = jogo.qnt_cartas - 7;
+                jogo->qnt_cartas = jogo->qnt_cartas - 7;
                 status_send = sendto(c,&jogo,sizeof(jogo),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));
             }else{
                 printf("Jogo esta prestes a iniciar \n");
