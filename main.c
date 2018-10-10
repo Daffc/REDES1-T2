@@ -97,9 +97,11 @@ int main(int argc, char **argv){
     // pior caso numero de cartas sera 23
     Hand.cartas = malloc(sizeof(char) * 23);
 
-    Game *jogo; // inicia o jogo para o player 0
-
+    Game *jogo,*dummy; // inicia o jogo para o player 0
+    dummy = malloc( sizeof(Game));
     jogo = malloc( sizeof(Game));
+
+    dummy->Baralho = malloc(sizeof(Carta) * 56);
 
     jogo->Baralho = malloc(sizeof(Carta) * 56);
 
@@ -165,6 +167,8 @@ int main(int argc, char **argv){
     while(1){        
         status_receive = recvfrom(s,&jogo,sizeof(jogo),0,(struct sockaddr * ) &server, &len);
         if(status_receive > -1){
+            memcpy(dummy,jogo,sizeof(Game));
+            printf("Dummy->tipo = %d",dummy->tipo);
             if(jogo->tipo == 0 && player){
 		    printf("aki ocorrera o famoso acesso");
                 for(int i = jogo->qnt_cartas - 1,j = 0; i > jogo->qnt_cartas - 8;i--,j++){
