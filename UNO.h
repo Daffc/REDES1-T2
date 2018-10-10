@@ -25,24 +25,30 @@
         PULAR,
     } Valores;
 
+    enum Estados{
+        DISTRIBUINDO,
+        JOGADA,
+        PASSAVEZ,
+    }Estados;
+
     typedef struct Carta{
         enum Valores valor;
         enum Cores   cor;
     }Carta;
 
     typedef struct Game{
-        int tipo;
+        enum Estados tipo;
         int player;
         int qnt_cartas;
         struct Carta jogada;
         int efeito;
         int deadlock;
-        struct Carta Baralho[56];
+        struct Carta baralho[56];
     }Game;
-    
+
     typedef struct Mao{
         Carta *cartas;
-        int quantidade_cartas;
+        int qnt_cartas;
     }Mao;
 
     /**
