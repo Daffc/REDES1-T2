@@ -161,10 +161,10 @@ int main(int argc, char **argv){
    printf("fora do if\n"); 
 
     while(1){        
-        status_receive = recvfrom(s,&jogo,sizeof(jogo),MSG_DONTWAIT,(struct sockaddr * ) &server, &len);
+        status_receive = recvfrom(s,&jogo,sizeof(jogo),0,(struct sockaddr * ) &server, &len);
         if(status_receive > -1){
             if(jogo.tipo == 0 && player){
-		printf("aki ocorrera o famoso acesso");
+		    printf("aki ocorrera o famoso acesso");
                 for(int i = jogo.qnt_cartas - 1,j = 0; i > jogo.qnt_cartas - 8;i--,j++){
                     Hand.cartas[j].cor = jogo.Baralho[i].cor;
                     Hand.cartas[j].valor = jogo.Baralho[i].valor;
