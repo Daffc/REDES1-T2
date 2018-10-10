@@ -159,13 +159,13 @@ int main(int argc, char **argv){
         // remove as 7 cartas que foram adicionadas no 
         jogo->qnt_cartas = jogo->qnt_cartas - 7;      
 
-        status_send = sendto(c,&jogo,sizeof(jogo),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
+        status_send = sendto(c,&jogo,sizeof(Game),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
 	printf("status send %d\n",status_send);
     }   
    printf("fora do if\n"); 
 
     while(1){        
-        status_receive = recvfrom(s,&jogo,sizeof(jogo),0,(struct sockaddr * ) &server, &len);
+        status_receive = recvfrom(s,&jogo,sizeof(Game),0,(struct sockaddr * ) &server, &len);
         if(status_receive > -1){
             memcpy(dummy,jogo,sizeof(Game));
             printf("Dummy->tipo = %d",dummy->tipo);
@@ -181,7 +181,7 @@ int main(int argc, char **argv){
                 }
                 Hand.quantidade_cartas = 7;
                 jogo->qnt_cartas = jogo->qnt_cartas - 7;
-                status_send = sendto(c,&jogo,sizeof(jogo),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));
+                status_send = sendto(c,&jogo,sizeof(Game),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));
             }else{
                 printf("Jogo esta prestes a iniciar \n");
                 // exit(1);
