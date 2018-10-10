@@ -129,7 +129,11 @@ int main(int argc, char **argv){
         }
 
         // remove as 7 cartas que foram adicionadas no 
-        jogo.qnt_cartas = jogo.qnt_cartas - 7;      
+        jogo.qnt_cartas = jogo.qnt_cartas - 7;
+
+        printf("Precione ENTER para iniciar a distribuição de cartas.\n");
+        int dummy;
+        scanf("%d", &dummy);      
         
         status_send = sendto(c, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
         if(status_send < 0){
@@ -137,32 +141,45 @@ int main(int argc, char **argv){
             exit(-1);
         }
 
-    }   
-   printf("fora do if\n"); 
+    }
 
     while(1){        
         status_receive = recvfrom(s, &jogo, sizeof(Game), 0, (struct sockaddr *) &server, &len);
-        if(status_receive > -1){
-            if((jogo.tipo == 0 )&& player){
-		        printf("aki ocorrera o famoso acesso");
-                for(int i = jogo.qnt_cartas ,j = 0; i > jogo.qnt_cartas - 7;i--,j++){
-                    Hand.cartas[j].cor = jogo.baralho[i].cor;
-                    Hand.cartas[j].valor = jogo.baralho[i].valor;
-                }
-                // printa as cartas for testing;
+        if(status_receive < 0){
+            perror("Recebimento de meságem");
+            exit(-1);
+        }
+        switch(jogo.tipo){
+            case DISTRIBUINDO:
 
-                Hand.qnt_cartas = 7;
-                for (int i = 0; i < Hand.qnt_cartas; i++){
-                    printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
+                if(player){
+                    printf("aki ocorrera o famoso acesso");
+                    for(int i = jogo.qnt_cartas ,j = 0; i > jogo.qnt_cartas - 7;i--,j++){
+                        Hand.cartas[j].cor = jogo.baralho[i].cor;
+                        Hand.cartas[j].valor = jogo.baralho[i].valor;
+                    }
+                    // printa as cartas for testing;
+
+                    Hand.qnt_cartas = 7;
+                    for (int i = 0; i < Hand.qnt_cartas; i++){
+                        printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
+                    }
+                    jogo.qnt_cartas = jogo.qnt_cartas - 7;
                 }
-                jogo.qnt_cartas = jogo.qnt_cartas - 7;
-                status_send = sendto(c,&jogo,sizeof(Game),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));
-            }else{
-                printf("Jogo esta prestes a iniciar \n");
-                exit(1);
-            }
+                else{
+                    jogo.tipo = JOGADA;
+                    //player 0 joga uma carta.
+                }
+                
+                status_send = sendto(c, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
+
+            break;
+
+            case JOGADA:
+            break;
+            case PASSAVEZ:
+            break;
         }
     }  
-
     return 0;
 }
