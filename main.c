@@ -89,20 +89,10 @@ int main(int argc, char **argv){
         exit(1);
     }
 
-    char *buffer = "there something happenning";
-    char *recebe_buffer = malloc(50);
-
-    buffer = "there something happenning";
-
+    
     socklen_t len = sizeof server;
 
-    printf("%ld\n",strlen(buffer));
 
-
-    printf("player %d\n",player);
-
-
-    
     Mao Hand;
     // pior caso numero de cartas sera 23
     Hand.cartas = malloc(sizeof(char) * 23);
@@ -164,9 +154,10 @@ int main(int argc, char **argv){
 
         status_send = sendto(c,&jogo,sizeof(jogo),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
     }   
+    
 
     while(1){        
-        status_receive = recvfrom(s,recebe_buffer,strlen(buffer),MSG_DONTWAIT,(struct sockaddr * ) &server, &len);
+        status_receive = recvfrom(s,&jogo,sizeof(jogo),MSG_DONTWAIT,(struct sockaddr * ) &server, &len);
         if(status_receive > -1){
             if(jogo.tipo == 0 && player){
                 for(int i = jogo.qnt_cartas - 1,j = 0; i > jogo.qnt_cartas - 8;i--,j++){
