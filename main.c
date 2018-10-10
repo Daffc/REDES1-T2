@@ -105,6 +105,7 @@ int main(int argc, char **argv){
     int status_receive;
 
     if(player == 0){
+    printf("dentro do if \n");
     // Cria o baralho inicial
     Carta *baralho;
 
