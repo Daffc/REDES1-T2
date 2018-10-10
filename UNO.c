@@ -58,6 +58,27 @@ void main(int argc, char const *argv[]){
     for(int i = 0; i < 56; i++){
         printf("cor: %d valor: %d\n", (baralho + i) -> cor, (baralho + i) -> valor);
     }
+
+    // Mao Hand;
+    // Hand.cartas = malloc(sizeof(char) * 23);
+
+
+    // for(int i = 56,j = 0; i > 56 - 7;i--,j++){
+    //     printf("%d %d \n",i,j);
+    // }
+    
+    //  for(int i = 55,j = 0; i > 55 - 7;i--,j++){
+    //     Hand.cartas[j].cor = baralho[i].cor;
+    //     Hand.cartas[j].valor = baralho[i].valor;
+    // }
+
+    // Hand.quantidade_cartas = 7;
+
+    // for (int i = 0; i < Hand.quantidade_cartas; i++){
+    //     printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
+    // }
+
+
     
     // return baralho;
 }

@@ -1,6 +1,16 @@
 
 #ifndef _ESTRUTURAS_
 
+    typedef struct Game{
+        int tipo;
+        int player;
+        int qnt_cartas;
+        struct Carta *jogada;
+        int efeito;
+        int deadlock;
+        struct Carta *Baralho;
+    }Game;
+
     enum Cores{
         AMARELO,
         AZUL, 

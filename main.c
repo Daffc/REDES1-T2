@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
+#include "Estruturas.h"
 
 
 int main(int argc, char **argv){
@@ -91,33 +92,122 @@ int main(int argc, char **argv){
     char *buffer = "there something happenning";
     char *recebe_buffer = malloc(50);
 
-    // buffer = "there something happenning";
+    buffer = "there something happenning";
 
     socklen_t len = sizeof server;
 
     printf("%ld\n",strlen(buffer));
 
+
     printf("player %d\n",player);
+
+
+    
+    Mao Hand;
+    // pior caso numero de cartas sera 23
+    Hand.cartas = malloc(sizeof(char) * 23);
+
+    Game jogo; // inicia o jogo para o player 0
+
+    jogo.Baralho = malloc(sizeof(Carta) * 56);
+
+    int status_send;
+    int status_receive;
+
     if(player == 0){
-        // while(1){
-        int envia = sendto(c,buffer,strlen(buffer),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));
-        perror("send");
-        if(envia == -1){
-            exit(1);
+    // Cria o baralho inicial
+    Carta *baralho;
+
+    baralho = malloc(sizeof(Carta) * 56);
+
+        for(int i = 0; i < 12; i++){
+            if(i < 10)
+            {
+                for(int j = 0; j < 4; j++){
+                    (baralho + (i*4) + j) -> valor = i;
+                    (baralho + (i*4) + j) -> cor = j;
+                } 
+            }        
+            else{
+                for(int j = 0; j < 4; j++){
+                    (baralho + (i*4) + j) -> valor = i;
+                    (baralho + (i*4) + j) -> cor = j;
+                    (baralho + ((i+2)*4) + j) -> valor = i;
+                    (baralho + ((i+2)*4) + j) -> cor = j;                
+                } 
+            }
         }
-        printf("mensagem : %s ... enviada\n",buffer);
-        // printf("Estado do envio : %d\n",envia);
-        // }
-        exit(1);
-    }else{
-        while(1){
-            int test = recvfrom(s,recebe_buffer,strlen(buffer),MSG_DONTWAIT,(struct sockaddr * ) &server, &len);
-            if(test > -1){
-                printf("%s\n",recebe_buffer);
-                printf("%ld\n",strlen(recebe_buffer));
+
+        jogo.tipo = 0;
+        jogo.player = 0;
+        jogo.qnt_cartas = 56;
+        // jogo.jogada = primeira carta do player one   
+        jogo.efeito = 0;
+        // baralho embaralhado passa para a estrutura do jogo
+        for(int i = 0 ; i < 56; i++){
+            jogo.Baralho[i].cor = baralho[i].cor;
+            jogo.Baralho[i].valor = baralho[i].valor;
+        }   
+        // adiciona na mão do player 0 as cartas
+        for(int i = 55,j = 0; i > 55 - 7;i--,j++){
+            Hand.cartas[j].cor = baralho[i].cor;
+            Hand.cartas[j].valor = baralho[i].valor;
+        } 
+
+        for (int i = 0; i < Hand.quantidade_cartas; i++){
+            printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
+        }
+        // seta em 7 o numero de cartas do player one
+        Hand.quantidade_cartas = 7;
+        // remove as 7 cartas que foram adicionadas no 
+        jogo.qnt_cartas = jogo.qnt_cartas - 7;      
+
+        status_send = sendto(c,&jogo,sizeof(jogo),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
+    }   
+
+    while(1){        
+        status_receive = recvfrom(s,recebe_buffer,strlen(buffer),MSG_DONTWAIT,(struct sockaddr * ) &server, &len);
+        if(status_receive > -1){
+            if(jogo.tipo == 0 && player){
+                for(int i = jogo.qnt_cartas - 1,j = 0; i > jogo.qnt_cartas - 8;i--,j++){
+                    Hand.cartas[j].cor = jogo.Baralho[i].cor;
+                    Hand.cartas[j].valor = jogo.Baralho[i].valor;
+                }
+                // printa as cartas for testing;
+                for (int i = 0; i < Hand.quantidade_cartas; i++){
+                    printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
+                }
+                Hand.quantidade_cartas = 7;
+                jogo.qnt_cartas = jogo.qnt_cartas - 7;
+                status_send = sendto(c,&jogo,sizeof(jogo),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));
+            }else{
+                printf("Jogo esta prestes a iniciar \n");
+                // exit(1);
             }
         }
     }
+
+
+    // if(player == 0){
+    //     // while(1){
+    //     int envia = sendto(c,buffer,strlen(buffer),0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));
+    //     perror("send");
+    //     if(envia == -1){
+    //         exit(1);
+    //     }
+    //     printf("mensagem : %s ... enviada\n",buffer);
+    //     // printf("Estado do envio : %d\n",envia);
+    //     // }
+    //     exit(1);
+    // }else{
+    //     while(1){
+    //         int test = recvfrom(s,recebe_buffer,strlen(buffer),MSG_DONTWAIT,(struct sockaddr * ) &server, &len);
+    //         if(test > -1){
+    //             printf("%s\n",recebe_buffer);
+    //             printf("%ld\n",strlen(recebe_buffer));
+    //         }
+    //     }
+    // }
 
     
 
