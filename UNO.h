@@ -29,6 +29,8 @@
         DISTRIBUINDO,
         JOGADA,
         PASSAVEZ,
+        UNO,
+        FIM,
     }Estados;
 
     typedef struct Carta{

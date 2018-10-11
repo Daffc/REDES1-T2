@@ -176,8 +176,25 @@ int main(int argc, char **argv){
             break;
 
             case JOGADA:
+                /**
+                 * - Jogador atual le e imprime a jogada de outro jogador
+                 * - Jogador atual recebe sua própria jogada e passa a vez paraq próximo jogador.
+                */
             break;
             case PASSAVEZ:
+                /**
+                 * Jogador atual recebe mensagem de jogador anterior e faz sua jogada a menos que carta jogada seja PULAR e jogo.efeito seja 1;
+                */
+            break;
+            case UNO:
+                /**
+                 * Jogador atual recebe a mensagem de que jogador contido em jogo.player ira ficar com aṕenas uma carta.
+                */
+            break;
+            case FIM:
+                /**
+                * Jogador atual recebe mensagem de que o jogo acabou, informando o vencedor ou que houve empate.
+                */
             break;
         }
     }  
