@@ -1,4 +1,3 @@
-#include "ConexaoRawSocket.h"
 #include "UNO.h"
 
 #include <unistd.h>
@@ -22,13 +21,7 @@ void Embaralha(Carta * baralho){
 
 }
 
-Carta * GeraBaralho(){
-    
-    Carta card;
-    Carta *baralho;
-
-    // Aloca todas as cartas do jogo.
-    baralho = malloc(sizeof(Carta) * 56);
+void GeraBaralho(Carta * baralho){
 
     // Gerando todas as cartas Do Baralho.
     for(int i = 0; i < 12; i++){
@@ -50,6 +43,15 @@ Carta * GeraBaralho(){
     }
 
     Embaralha(baralho);
-    
-    return baralho;
+}
+
+void compraCartas(Mao *hand,int qnt_compra, Game * jogo){
+        // adiciona na mão do player 0 as cartas.
+        for(int i = 1; i < (qnt_compra + 1); i++){
+            // iguala carta a 
+            (hand->cartas + hand->qnt_cartas)->carta = *(jogo->baralho + (jogo->qnt_cartas - i));
+            hand->qnt_cartas ++;
+        } 
+
+        jogo->qnt_cartas -= 7;
 }

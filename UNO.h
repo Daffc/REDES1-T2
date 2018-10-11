@@ -48,14 +48,26 @@
         struct Carta baralho[56];
     }Game;
 
+    typedef struct CartaMao{
+        Carta       carta;
+        struct CartaMao    *proxima;
+    }CartaMao;
+
     typedef struct Mao{
-        Carta *cartas;
+        CartaMao *cartas;
         int qnt_cartas;
     }Mao;
 
     /**
-    * Gera baralho, embaralha e devolve ponteiro para este baralho (56 cartas).
+    * Recebe ponteiro para buffer baralho previamente alocado e o devolve preenchido e embaralhado.
     */
-    Carta * GeraBaralho();
+    void GeraBaralho(Carta *);
+
+    /**
+    * Recebe ponteiros para mão, e baralho e a quantidade de cartas contidas no baralho, 
+    * e finaliza tendo as novas cartas compradas adicionadas a mão indicada.
+    */
+    void compraCartas(Mao *hand,int qnt_compra, Game * jogo);
+
 
 #endif 

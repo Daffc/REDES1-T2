@@ -105,7 +105,7 @@ int main(int argc, char **argv){
     if(player == 0){
         printf("dentro do if \n");
 
-        memcpy( &(jogo.baralho), GeraBaralho(), 56 * sizeof(Carta));
+        GeraBaralho(jogo.baralho);
 	    printf("depois de criar o baralho\n");
 
         jogo.tipo = DISTRIBUINDO;
@@ -114,19 +114,10 @@ int main(int argc, char **argv){
         jogo.jogada;   
         jogo.efeito = 0;
 
-        // adiciona na mão do player 0 as cartas
-        for(int i = (jogo.qnt_cartas - 1),j = 0; i > (jogo.qnt_cartas - 8); i--,j++){
-            Hand.cartas[j].cor = jogo.baralho[i].cor;
-            Hand.cartas[j].valor = jogo.baralho[i].valor;
-        } 
+        Hand.qnt_cartas = 0;
+        Hand.cartas = malloc(sizeof(CartaMao) * 7);
 
-        printf("apos adicionar baralho a mao \n");
-        Hand.qnt_cartas = 7;
-
-        // seta em 7 o numero de cartas do player one
-        for (int i = 0; i < Hand.qnt_cartas; i++){
-            printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
-        }
+        compraCartas(&Hand, 7, &jogo);
 
         // remove as 7 cartas que foram adicionadas no 
         jogo.qnt_cartas = jogo.qnt_cartas - 7;
@@ -154,15 +145,16 @@ int main(int argc, char **argv){
 
                 if(player){
                     printf("aki ocorrera o famoso acesso");
-                    for(int i = jogo.qnt_cartas ,j = 0; i > jogo.qnt_cartas - 7;i--,j++){
-                        Hand.cartas[j].cor = jogo.baralho[i].cor;
-                        Hand.cartas[j].valor = jogo.baralho[i].valor;
+                    for(int i = jogo.qnt_cartas ,j = 0; i > jogo.qnt_cartas - 7;i--){
+                        // Hand.cartas[j].cor = jogo.baralho[i].cor;
+                        // Hand.cartas[j].valor = jogo.baralho[i].valor;
+                        (Hand.cartas + Hand.qnt_cartas)->carta = jogo.baralho[i];
                     }
                     // printa as cartas for testing;
 
                     Hand.qnt_cartas = 7;
                     for (int i = 0; i < Hand.qnt_cartas; i++){
-                        printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
+                        // printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
                     }
                     jogo.qnt_cartas = jogo.qnt_cartas - 7;
                 }
