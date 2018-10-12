@@ -56,34 +56,15 @@ void imrpimrCartas(Mao *Hand){
         }
 }
 
-int main(int argc, char **argv){
-
-    printf("%d\n",argc);
-
-    for( int i = 0 ; i < argc ; i++){
-        printf("Argumento = %d , elemento argv[%d] = %s\n", i ,i, argv[i] );
-    }
-
-    if(argc != 6){
-        printf("Forma de uso ./a.out server: <localhost> <porta> client: <hostname> <porta> player <numero>\n");
-        exit(1);
-    }
-
-    int player = atoi(argv[5]);
-
-    printf("Inicia processo de montagem do socket_server\n");
-
-    struct hostent *h;
-
-    // não precisa ser necessariamente o localhost, pode ser usado da entrada.
-    if ((h = gethostbyname(argv[1])) == NULL){
+inicia_server(int *file_desc_server,struct hostent *h,struct sockaddr_in *servidor,char *host,char *port){
+     if ((h = gethostbyname(host)) == NULL){
         printf("Não identifiquei meu endereço\n");
         exit(1);
-    }
+    }   
 
-    struct sockaddr_in server;
+    struct sockaddr_in server = *servidor;
 
-    server.sin_port = htons(atoi(argv[2]));
+    server.sin_port = htons(atoi(port));
 
     memcpy ((char *) &server.sin_addr, (char *) h->h_addr_list[0], h->h_length);
     // por compatibilidade h_addr esta no primeiro elemento do h_addr_list
@@ -102,6 +83,57 @@ int main(int argc, char **argv){
         printf("Não realizou bind\n");
         exit(1);
     }
+
+    *servidor = server;
+    *file_desc_server = s;
+}
+
+
+
+int main(int argc, char **argv){
+
+    printf("%d\n",argc);
+
+    for( int i = 0 ; i < argc ; i++){
+        printf("Argumento = %d , elemento argv[%d] = %s\n", i ,i, argv[i] );
+    }
+
+    if(argc != 6){
+        printf("Forma de uso ./a.out server: <localhost> <porta> client: <hostname> <porta> player <numero>\n");
+        exit(1);
+    }
+
+    int player = atoi(argv[5]);
+    int file_desc_server;
+    struct hostent *h;  
+    struct sockaddr_in *server; 
+
+    inicia_server(&file_desc_server,h,server,argv[1],argv[2]);
+    
+    // if ((h = gethostbyname(argv[1])) == NULL){
+    //     printf("Não identifiquei meu endereço\n");
+    //     exit(1);
+    // }   
+
+    // server.sin_port = htons(atoi(argv[2]));
+
+    // memcpy ((char *) &server.sin_addr, (char *) h->h_addr_list[0], h->h_length);
+    // // por compatibilidade h_addr esta no primeiro elemento do h_addr_list
+    // // h_addr which is just the first element of the vector h_addr_list
+
+    // server.sin_family = h->h_addrtype;
+
+    // int s;
+
+    // if((s = socket( h->h_addrtype,SOCK_DGRAM,0)) < 0){
+    //     printf("Não abriu o socket\n");
+    //     exit(1);
+    // }
+
+    // if(bind(s, (struct sockaddr *) &server, sizeof(server)) < 0){
+    //     printf("Não realizou bind\n");
+    //     exit(1);
+    // }
 
     printf("Inicia processo de montagem do socket_client\n");
 
@@ -183,7 +215,7 @@ int main(int argc, char **argv){
     }
 
     while(1){        
-        status_receive = recvfrom(s, &jogo, sizeof(Game), 0, (struct sockaddr *) &server, &len);
+        status_receive = recvfrom(file_desc_server, &jogo, sizeof(Game), 0, (struct sockaddr *) &server, &len);
         if(status_receive < 0){
             perror("Recebimento de meságem");
             exit(-1);
