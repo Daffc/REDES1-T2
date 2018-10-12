@@ -47,6 +47,7 @@ void GeraBaralho(Carta * baralho){
 
 void compraCartas(Mao *hand,int qnt_compra, Game * jogo){
         CartaMao * aux;
+        int i;
 
         aux = hand->cartas;
 
@@ -56,19 +57,31 @@ void compraCartas(Mao *hand,int qnt_compra, Game * jogo){
         while(aux->proxima)
             aux = aux->proxima;
 
-        printf("oiasd\n");
         /**
-         *  Aloca espaço para proxima carta, já apontando para essa nova carta e muda o ponteoro "aux" para a proxima carta a ser comprada.
+         * Compra cartas enquanto i for igual a quantidade a ser comprada e 
+         * enquanto ainda houverem cartas a serem compraas (jogo->qnt_cartas != 0).
         */
-        for(int i = 1; i < (qnt_compra + 1); i++){
+        for(i = 1; (i < (qnt_compra + 1) && jogo->qnt_cartas); i++){
+            /**
+             *  Aloca espaço para proxima carta, já apontando para essa nova carta e muda o ponteoro 
+             * "aux" para a proxima carta a ser comprada.
+            */
             aux->proxima = malloc(sizeof(CartaMao));
             aux->proxima->carta = *(jogo->baralho + (jogo->qnt_cartas - i));
             aux = aux->proxima;
             hand->qnt_cartas ++;
+            /**
+             * Subtrai a "qnt_compra" do contador de cartas do baralho para que nenhum dos 
+             * usuário compre cartas alem do final do baralho..
+            */
+            jogo->qnt_cartas = jogo->qnt_cartas-1;
         } 
-
+        
         /**
-         * Subtrai a "qnt_compra" do contador de cartas do baralho.
+         * Verifica pela variável "i" se o jogador conseguiu comprar a "qnt_compra" pretendida, 
+         * caso contrário, informa ao usuário que o baralho acabou.
         */
-        jogo->qnt_cartas -= qnt_compra;
+        if((qnt_compra + 1) != i){
+            printf("Baralho não possui mais cartas para serem compradas.\n");
+        }
 }
