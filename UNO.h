@@ -31,7 +31,7 @@
         PASSAVEZ,
         UNO,
         FIM,
-        EMPATE
+        EMPATE,
     }Estados;
 
     typedef struct Carta{
@@ -50,7 +50,7 @@
     }Game;
 
     typedef struct CartaMao{
-        Carta       carta;
+        Carta               carta;
         struct CartaMao    *proxima;
     }CartaMao;
 
