@@ -114,6 +114,7 @@ void inicia_cliente(int *file_desc_client,struct hostent *h_client,struct sockad
     }
 
     *sock_client = sockaddr_in_client;
+    *file_desc_client = c;
 
 }
 
