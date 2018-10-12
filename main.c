@@ -7,8 +7,54 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <string.h>
+
 #include "UNO.h"
 
+/**
+ * Definição de cores utilizadas para printar cartas.
+*/
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
+
+void imrpimrCartas(Mao *Hand){
+        /**
+        * ------------------------------------------------------------------
+        * LEITURA DE CARTAS DA MÃO DE USUÁRIO, EXEMPLO PARA USO EM OUTRAS LOCALIDADES. 
+        * EXCLUIR APOS USO.
+        */
+        CartaMao *aux = Hand->cartas->proxima;
+
+        int posicao = 0;    
+
+        while(aux){
+
+            /**
+             * Verifica a cor da carta atual e imprime esta carta de acordo com a corinformada.
+            */
+            switch(aux->carta.cor){
+                case VERDE:
+                    printf(ANSI_COLOR_GREEN "Posicão %d\t valor: %d\n" ANSI_COLOR_RESET, posicao, aux->carta.valor);
+                break;
+                case VERMELHO:
+                    printf(ANSI_COLOR_RED "Posicão %d\t valor: %d\n" ANSI_COLOR_RESET, posicao,aux->carta.valor);
+                break;
+                case AZUL:
+                    printf(ANSI_COLOR_BLUE "Posicão %d\t valor: %d\n" ANSI_COLOR_RESET, posicao, aux->carta.valor);
+                break;
+                case AMARELO:
+                    printf(ANSI_COLOR_YELLOW "Posicão %d\t valor: %d\n" ANSI_COLOR_RESET, posicao, aux->carta.valor);
+                break;                
+            }
+
+            aux = aux->proxima; 
+
+            posicao++;           
+        }
+}
 
 int main(int argc, char **argv){
 
@@ -120,25 +166,13 @@ int main(int argc, char **argv){
         Hand.qnt_cartas = 0;
         compraCartas(&Hand, 7, &jogo);
 
-        //------------------------------------------------------------------
-        CartaMao *aux = Hand.cartas->proxima;
-        while(aux){
-            printf("cor: %d\tvalor: %d\n", aux->carta.cor, aux->carta.valor);
-            aux = aux->proxima;            
-        }
-            printf("\n\n\nBARALHO\n");
-        for(int i = 55; i >= 0; i-- ){
-            printf("cor: %d\tvalor: %d\n", jogo.baralho[i].cor, jogo.baralho[i].valor);
-        }    
+        imrpimrCartas(&Hand);
 
-        //-----------------------------------------------------------------
-
-        // remove as 7 cartas que foram adicionadas no 
-        jogo.qnt_cartas = jogo.qnt_cartas - 7;
-
+        /**
+         * Espera por entrada de usuário para que jogo prossiga.
+        */
         printf("Precione ENTER para iniciar a distribuição de cartas.\n");
-        int dummy;
-        scanf("%d", &dummy);      
+        getchar();      
         
         status_send = sendto(c, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
         if(status_send < 0){
@@ -158,30 +192,19 @@ int main(int argc, char **argv){
             case DISTRIBUINDO:
 
                 if(player){
-                    printf("aki ocorrera o famoso acesso");
-                    for(int i = jogo.qnt_cartas ,j = 0; i > jogo.qnt_cartas - 7;i--){
-                        // Hand.cartas[j].cor = jogo.baralho[i].cor;
-                        // Hand.cartas[j].valor = jogo.baralho[i].valor;
-                        (Hand.cartas + Hand.qnt_cartas)->carta = jogo.baralho[i];
-                    }
-                    // printa as cartas for testing;
-
-                    Hand.qnt_cartas = 7;
-                    for (int i = 0; i < Hand.qnt_cartas; i++){
-                        // printf("cor: %d valor: %d\n", Hand.cartas[i].cor, Hand.cartas[i].valor);
-                    }
-                    jogo.qnt_cartas = jogo.qnt_cartas - 7;
+                    compraCartas(&Hand, 7, &jogo);
+                    imrpimrCartas(&Hand);
                 }
                 else{
-                    jogo.tipo = JOGADA;
                     //player 0 joga uma carta.
+                    jogo.tipo = JOGADA;
                 }
                 
                 status_send = sendto(c, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
 
             break;
 
-            case JOGADA:
+            case JOGADA:          
                 /**
                  * - Jogador atual le e imprime a jogada de outro jogador
                  * - Jogador atual recebe sua própria jogada e passa a vez paraq próximo jogador.
