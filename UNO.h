@@ -31,6 +31,7 @@
         PASSAVEZ,
         UNO,
         FIM,
+        EMPATE
     }Estados;
 
     typedef struct Carta{

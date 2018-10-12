@@ -118,6 +118,38 @@ void inicia_cliente(int *file_desc_client,struct hostent *h_client,struct sockad
 
 }
 
+void recebe_jogada(struct Game *jogo,int player){
+    if(jogo->player == player){
+        jogo->tipo = PASSAVEZ;
+    }else{
+        printf("A carta do player %d",jogo->player);        
+        // imprime carta jogo->jogada
+    }
+}
+
+void recebe_uno(struct Game *jogo,int player){
+    if(jogo->player == player){
+        jogo->tipo = PASSAVEZ;
+    }else{
+        printf("O player %d declarou UNO , bora jogar uma para ele comprar",jogo->player);        
+        // imprime carta jogo->jogada
+    }
+}
+
+void recebe_fim(struct Game *jogo,int player){
+    if(jogo->player == player){
+        printf("O jogo acabou ganhei seus pato");
+        exit(1);
+    }else{
+        printf("O player %d ganhou o jogo",jogo->player);  
+        exit(1);
+    }
+}
+
+void recebe_empate(struct Game *jogo,int player){   
+    printf("O jogo acabou em empate, ninguem ganhou");
+    exit(1);   
+}
 
 int main(int argc, char **argv){
 
@@ -208,13 +240,12 @@ int main(int argc, char **argv){
                 else{
                     //player 0 joga uma carta.
                     jogo.tipo = JOGADA;
-                }
-                
-                status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
+                } 
 
             break;
 
-            case JOGADA:          
+            case JOGADA:
+                recebe_jogada(&jogo,player);
                 /**
                  * - Jogador atual le e imprime a jogada de outro jogador
                  * - Jogador atual recebe sua própria jogada e passa a vez paraq próximo jogador.
@@ -226,16 +257,22 @@ int main(int argc, char **argv){
                 */
             break;
             case UNO:
+                recebe_uno(&jogo,player);
                 /**
                  * Jogador atual recebe a mensagem de que jogador contido em jogo.player ira ficar com aṕenas uma carta.
                 */
             break;
             case FIM:
+                recebe_fim(&jogo,player);
                 /**
-                * Jogador atual recebe mensagem de que o jogo acabou, informando o vencedor ou que houve empate.
-                */
+                * Jogador atual recebe mensagem de que o jogo acabou, informando o vencedor.
+                */            
+            break;
+            case EMPATE:
+                recebe_empate(&jogo,player);
             break;
         }
+         status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
     }  
     return 0;
 }
