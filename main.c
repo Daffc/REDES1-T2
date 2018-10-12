@@ -56,7 +56,7 @@ void imrpimrCartas(Mao *Hand){
         }
 }
 
-inicia_server(int *file_desc_server,struct hostent *h,struct sockaddr_in *servidor,char *host,char *port){
+void inicia_server(int *file_desc_server,struct hostent *h,struct sockaddr_in *servidor,char *host,char *port){
      if ((h = gethostbyname(host)) == NULL){
         printf("Não identifiquei meu endereço\n");
         exit(1);
@@ -88,6 +88,35 @@ inicia_server(int *file_desc_server,struct hostent *h,struct sockaddr_in *servid
     *file_desc_server = s;
 }
 
+void inicia_cliente(int *file_desc_client,struct hostent *h_client,struct sockaddr_in *sock_client,char *host,char *port){
+
+   
+
+    if((h_client = gethostbyname(host)) == NULL){
+        printf("não consegui me conectar ao ip do servidor\n");
+        exit(1);
+    }
+
+    struct sockaddr_in sockaddr_in_client = *sock_client;
+
+
+    memcpy ((char *) &sockaddr_in_client.sin_addr, (char *) h_client->h_addr_list[0], h_client->h_length);
+
+    sockaddr_in_client.sin_family = h_client->h_addrtype;
+
+    sockaddr_in_client.sin_port = htons(atoi(port));
+
+    int c;
+
+    if((c = socket(h_client->h_addrtype, SOCK_DGRAM,0)) < 0){
+        printf("Não consegui abrir o socket");
+        exit(1);
+    }
+
+    *sock_client = sockaddr_in_client;
+
+}
+
 
 
 int main(int argc, char **argv){
@@ -105,10 +134,19 @@ int main(int argc, char **argv){
 
     int player = atoi(argv[5]);
     int file_desc_server;
-    struct hostent *h;  
-    struct sockaddr_in *server; 
+    struct hostent h;  
+    struct sockaddr_in server; 
 
-    inicia_server(&file_desc_server,h,server,argv[1],argv[2]);
+    
+
+    struct sockaddr_in sockaddr_in_client;
+    struct hostent h_client;
+    int file_desc_client;
+
+    
+
+    inicia_server(&file_desc_server,&h,&server,argv[1],argv[2]);
+    inicia_cliente(&file_desc_client,&h_client,&sockaddr_in_client,argv[3],argv[4]);
     
     // if ((h = gethostbyname(argv[1])) == NULL){
     //     printf("Não identifiquei meu endereço\n");
@@ -135,37 +173,37 @@ int main(int argc, char **argv){
     //     exit(1);
     // }
 
-    printf("Inicia processo de montagem do socket_client\n");
+    // printf("Inicia processo de montagem do socket_client\n");
 
-    char *host;
-    char *host_port;
+    // char *host;
+    // char *host_port;
 
-    host = argv[3];
+    // host = argv[3];
 
-    host_port = argv[4];
+    // host_port = argv[4];
 
-    struct hostent *h_client;
+    // struct hostent *h_client;
 
-    if((h_client = gethostbyname(host)) == NULL){
-        printf("não consegui me conectar ao ip do servidor\n");
-        exit(1);
-    }
+    // if((h_client = gethostbyname(host)) == NULL){
+    //     printf("não consegui me conectar ao ip do servidor\n");
+    //     exit(1);
+    // }
 
 
-    struct sockaddr_in sockaddr_in_client;
+    // struct sockaddr_in sockaddr_in_client;
 
-    memcpy ((char *) &sockaddr_in_client.sin_addr, (char *) h_client->h_addr_list[0], h->h_length);
+    // memcpy ((char *) &sockaddr_in_client.sin_addr, (char *) h_client->h_addr_list[0], h.h_length);
 
-    sockaddr_in_client.sin_family = h_client->h_addrtype;
+    // sockaddr_in_client.sin_family = h_client->h_addrtype;
 
-    sockaddr_in_client.sin_port = htons(atoi(host_port));
+    // sockaddr_in_client.sin_port = htons(atoi(host_port));
 
-    int c;
+    // int c;
 
-    if((c = socket(h_client->h_addrtype, SOCK_DGRAM,0)) < 0){
-        printf("Não consegui abrir o socket");
-        exit(1);
-    }
+    // if((c = socket(h_client->h_addrtype, SOCK_DGRAM,0)) < 0){
+    //     printf("Não consegui abrir o socket");
+    //     exit(1);
+    // }
 
     
     socklen_t len = sizeof server;
@@ -206,7 +244,7 @@ int main(int argc, char **argv){
         printf("Precione ENTER para iniciar a distribuição de cartas.\n");
         getchar();      
         
-        status_send = sendto(c, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
+        status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
         if(status_send < 0){
             perror("Passando Baralho Jogador 0");
             exit(-1);
@@ -232,7 +270,7 @@ int main(int argc, char **argv){
                     jogo.tipo = JOGADA;
                 }
                 
-                status_send = sendto(c, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
+                status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
 
             break;
 
