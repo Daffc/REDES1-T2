@@ -46,12 +46,29 @@ void GeraBaralho(Carta * baralho){
 }
 
 void compraCartas(Mao *hand,int qnt_compra, Game * jogo){
-        // adiciona na mão do player 0 as cartas.
+        CartaMao * aux;
+
+        aux = hand->cartas;
+
+        /**
+         * Percorre toda a mão ate achar carta cujo ponteiro proximo seja null
+        */
+        while(aux->proxima)
+            aux = aux->proxima;
+
+        printf("oiasd\n");
+        /**
+         *  Aloca espaço para proxima carta, já apontando para essa nova carta e muda o ponteoro "aux" para a proxima carta a ser comprada.
+        */
         for(int i = 1; i < (qnt_compra + 1); i++){
-            // iguala carta a 
-            (hand->cartas + hand->qnt_cartas)->carta = *(jogo->baralho + (jogo->qnt_cartas - i));
+            aux->proxima = malloc(sizeof(CartaMao));
+            aux->proxima->carta = *(jogo->baralho + (jogo->qnt_cartas - i));
+            aux = aux->proxima;
             hand->qnt_cartas ++;
         } 
 
-        jogo->qnt_cartas -= 7;
+        /**
+         * Subtrai a "qnt_compra" do contador de cartas do baralho.
+        */
+        jogo->qnt_cartas -= qnt_compra;
 }
