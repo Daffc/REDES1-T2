@@ -94,8 +94,10 @@ int main(int argc, char **argv){
 
 
     Mao Hand;
-    // pior caso numero de cartas sera 23
-    Hand.cartas = malloc(sizeof(char) * 23);
+
+    // Cabeça da lista (Serve apenas para guardar inicio da lista ligada da mão).
+    Hand.cartas = malloc(sizeof(CartaMao)); 
+    Hand.cartas->proxima = NULL;
 
     Game jogo; // inicia o jogo para o player 0
 
@@ -114,10 +116,22 @@ int main(int argc, char **argv){
         jogo.jogada;   
         jogo.efeito = 0;
 
-        Hand.qnt_cartas = 0;
-        Hand.cartas = malloc(sizeof(CartaMao) * 7);
 
+        Hand.qnt_cartas = 0;
         compraCartas(&Hand, 7, &jogo);
+
+        //------------------------------------------------------------------
+        CartaMao *aux = Hand.cartas->proxima;
+        while(aux){
+            printf("cor: %d\tvalor: %d\n", aux->carta.cor, aux->carta.valor);
+            aux = aux->proxima;            
+        }
+            printf("\n\n\nBARALHO\n");
+        for(int i = 55; i >= 0; i-- ){
+            printf("cor: %d\tvalor: %d\n", jogo.baralho[i].cor, jogo.baralho[i].valor);
+        }    
+
+        //-----------------------------------------------------------------
 
         // remove as 7 cartas que foram adicionadas no 
         jogo.qnt_cartas = jogo.qnt_cartas - 7;
