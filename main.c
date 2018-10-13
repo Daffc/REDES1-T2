@@ -13,48 +13,19 @@
 /**
  * Definição de cores utilizadas para printar cartas.
 */
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_RED     "\x1b[31m\x1b[47m"
+#define ANSI_COLOR_GREEN   "\x1b[32m\x1b[47m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m\x1b[47m"
+#define ANSI_COLOR_BLUE    "\x1b[34m\x1b[47m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 
-void imrpimrCartas(Mao *Hand){
-        /**
-        * ------------------------------------------------------------------
-        * LEITURA DE CARTAS DA MÃO DE USUÁRIO, EXEMPLO PARA USO EM OUTRAS LOCALIDADES. 
-        * EXCLUIR APOS USO.
-        */
-        CartaMao *aux = Hand->cartas->proxima;
+/**
+ * !!!!!!!!!!!!!!!PARA TESTE COM 3 JOGADORES, MUDAR NO CASO DE MAIS JOGADORES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*/
+#define NUM_JOGADORES 3
 
-        int posicao = 0;    
 
-        while(aux){
-
-            /**
-             * Verifica a cor da carta atual e imprime esta carta de acordo com a corinformada.
-            */
-            switch(aux->carta.cor){
-                case VERDE:
-                    printf(ANSI_COLOR_GREEN "Posicão %d\t valor: %d\n" ANSI_COLOR_RESET, posicao, aux->carta.valor);
-                break;
-                case VERMELHO:
-                    printf(ANSI_COLOR_RED "Posicão %d\t valor: %d\n" ANSI_COLOR_RESET, posicao,aux->carta.valor);
-                break;
-                case AZUL:
-                    printf(ANSI_COLOR_BLUE "Posicão %d\t valor: %d\n" ANSI_COLOR_RESET, posicao, aux->carta.valor);
-                break;
-                case AMARELO:
-                    printf(ANSI_COLOR_YELLOW "Posicão %d\t valor: %d\n" ANSI_COLOR_RESET, posicao, aux->carta.valor);
-                break;                
-            }
-
-            aux = aux->proxima; 
-
-            posicao++;           
-        }
-}
 
 void inicia_server(int *file_desc_server,struct hostent *h,struct sockaddr_in *servidor,char *host,char *port){
      if ((h = gethostbyname(host)) == NULL){
@@ -118,15 +89,62 @@ void inicia_cliente(int *file_desc_client,struct hostent *h_client,struct sockad
 
 }
 
-void recebe_jogada(struct Game *jogo,int player){
-    if(jogo->player == player){
-        jogo->tipo = PASSAVEZ;
-    }else{
-        printf("A carta do player %d",jogo->player);        
-        // imprime carta jogo->jogada
+void imprimeCarta(Carta carta){
+    switch(carta.cor){
+        case VERDE:
+            printf(ANSI_COLOR_GREEN "%02d" ANSI_COLOR_RESET,  carta.valor);
+        break;
+        case VERMELHO:
+            printf(ANSI_COLOR_RED "%02d" ANSI_COLOR_RESET, carta.valor);
+        break;
+        case AZUL:
+            printf(ANSI_COLOR_BLUE "%02d" ANSI_COLOR_RESET, carta.valor);
+        break;
+        case AMARELO:
+            printf(ANSI_COLOR_YELLOW "%02d" ANSI_COLOR_RESET, carta.valor);
+        break;                
     }
 }
 
+void imprimirCartas(Mao *hand){
+        system("clear");
+        /**
+        * ------------------------------------------------------------------
+        * LEITURA DE CARTAS DA MÃO DE USUÁRIO, EXEMPLO PARA USO EM OUTRAS LOCALIDADES. 
+        * EXCLUIR APOS USO.
+        */
+        CartaMao *aux = hand->cartas->proxima;
+
+        int posicao = 0;    
+
+        while(aux){
+
+            /**
+             * Verifica a cor da carta atual e imprime esta carta de acordo com a corinformada.
+            */
+            
+            printf("Posicão %d\t Carta: ", posicao);
+            imprimeCarta(aux->carta);
+            printf("\n");
+
+            aux = aux->proxima; 
+            posicao++;           
+        }        
+}
+
+
+void recebe_jogada(struct Game *jogo, int player){
+   
+    printf("A carta do em jogo é:\n");        
+    imprimeCarta(jogo->jogada);             
+    printf("\n");
+    printf("Aguarde a Próxima Jogada.\n");     
+    
+    if(jogo->player == player){
+        jogo->player = (jogo->player + 1) % NUM_JOGADORES;
+        jogo->tipo = PASSAVEZ;
+    }
+}
 void recebe_uno(struct Game *jogo,int player){
     if(jogo->player == player){
         jogo->tipo = PASSAVEZ;
@@ -147,10 +165,22 @@ void recebe_fim(struct Game *jogo,int player){
 }
 
 void recebe_empate(struct Game *jogo,int player){   
-    printf("O jogo acabou em empate, ninguem ganhou");
+    printf("O jogo acabou em empate, ninguem ganhou");    
     exit(1);   
 }
 
+void defineJogada(Game *jogo, Mao * hand, int posicao){
+    CartaMao *atual = hand->cartas->proxima, *anterior = hand->cartas;
+
+    for(int i = 0; i < posicao; i++){
+        anterior = atual;
+        atual = atual->proxima;  
+    }
+    anterior->proxima = atual->proxima;
+    jogo->jogada = atual->carta;
+    free(atual);
+    hand->qnt_cartas --;
+}
 int main(int argc, char **argv){
 
     printf("%d\n",argc);
@@ -164,7 +194,7 @@ int main(int argc, char **argv){
         exit(1);
     }
 
-    int player = atoi(argv[5]);
+    int player = atoi(argv[5]), escolha_carta;
     int file_desc_server;
     struct hostent h;  
     struct sockaddr_in server; 
@@ -184,11 +214,12 @@ int main(int argc, char **argv){
         
     socklen_t len = sizeof server;
 
-    Mao Hand;
+    Mao hand;
 
     // Cabeça da lista (Serve apenas para guardar inicio da lista ligada da mão).
-    Hand.cartas = malloc(sizeof(CartaMao)); 
-    Hand.cartas->proxima = NULL;
+    hand.cartas = malloc(sizeof(CartaMao)); 
+    hand.cartas->proxima = NULL;
+    hand.qnt_cartas = 0;
 
     Game jogo; // inicia o jogo para o player 0  
 
@@ -205,10 +236,10 @@ int main(int argc, char **argv){
         jogo.efeito = 0;
 
 
-        Hand.qnt_cartas = 0;
-        compraCartas(&Hand, 7, &jogo);
+        hand.qnt_cartas = 0;
+        compraCartas(&hand, 7, &jogo);
 
-        imrpimrCartas(&Hand);
+        imprimirCartas(&hand);
 
         /**
          * Espera por entrada de usuário para que jogo prossiga.
@@ -224,37 +255,103 @@ int main(int argc, char **argv){
 
     }
 
-    while(1){        
+    while(1){      
         status_receive = recvfrom(file_desc_server, &jogo, sizeof(Game), 0, (struct sockaddr *) &server, &len);
         if(status_receive < 0){
-            perror("Recebimento de meságem");
+            perror("Recebimento de mesagem");
             exit(-1);
         }
         switch(jogo.tipo){
             case DISTRIBUINDO:
 
                 if(player){
-                    compraCartas(&Hand, 7, &jogo);
-                    imrpimrCartas(&Hand);
+                    compraCartas(&hand, 7, &jogo);
+                    imprimirCartas(&hand);
+                    printf("Aguarde a Primeira Jogada.\n");
                 }
                 else{
-                    //player 0 joga uma carta.
+                    imprimirCartas(&hand);
+                    printf("Informe a posição da carta de sua jogada dentre as opções acima:\n");
+                    scanf("%d", &escolha_carta); 
+                    
+                    /**
+                    * Entra em laço caso usuário tenha digitado algum valor inválido.
+                    */
+                    while(escolha_carta < 0 || escolha_carta > hand.qnt_cartas){
+                        imprimirCartas(&hand);                        
+                        printf("Valor inválido, escolha apenas entre as opções acima:\n");
+                        scanf("%d", &escolha_carta);                         
+                    }
+                    
+                    defineJogada(&jogo, &hand, escolha_carta);
+                    
                     jogo.tipo = JOGADA;
                 } 
 
             break;
-
+            /**
+             * - Jogador atual lê e imprime a jogada de outro jogador.
+             * - Jogador atual recebe sua própria jogada e passa a vez para próximo jogador.
+            */
             case JOGADA:
-                recebe_jogada(&jogo,player);
-                /**
-                 * - Jogador atual le e imprime a jogada de outro jogador
-                 * - Jogador atual recebe sua própria jogada e passa a vez paraq próximo jogador.
-                */
+                imprimirCartas(&hand);
+                recebe_jogada(&jogo, player);
             break;
             case PASSAVEZ:
+
+                ESCOLHA:
+                
+                imprimirCartas(&hand);
+                printf("Carta em jogo é:\n");        
+                imprimeCarta(jogo.jogada);
+                printf("\n");                        
+                printf("Informe a posição da carta de sua jogada dentre as opções acima ou -1 para comprar uma carta:\n");
+                scanf("%d", &escolha_carta); 
+
                 /**
-                 * Jogador atual recebe mensagem de jogador anterior e faz sua jogada a menos que carta jogada seja PULAR e jogo.efeito seja 1;
+                * Entra em laço caso usuário tenha digitado algum valor inválido.
                 */
+                while(escolha_carta < -1 || escolha_carta > hand.qnt_cartas){
+                    imprimirCartas(&hand);
+                    printf("Carta em jogo é:\n");        
+                    imprimeCarta(jogo.jogada);
+                    printf("\n");        
+                    printf("Valor inválido, escolha apenas entre as opções acima ou -1 para comprar uma carta:\n");
+                    scanf("%d", &escolha_carta);                         
+                }
+                
+                CartaMao *atual = hand.cartas->proxima, *anterior = hand.cartas;
+
+                if(escolha_carta > -1){             
+                    for(int i = 0; i < escolha_carta; i++){
+                        anterior = atual;
+                        atual = atual->proxima;  
+                    }
+                    
+                    if(atual->carta.cor != jogo.jogada.cor && atual->carta.valor != jogo.jogada.valor){
+                        goto ESCOLHA;
+
+                    }
+
+                    anterior->proxima = atual->proxima;
+                    jogo.jogada = atual->carta;
+                    free(atual);
+                    hand.qnt_cartas --;
+
+                    /**
+                     * Jogador atual recebe mensagem de jogador anterior e faz sua jogada a menos que carta jogada seja PULAR e jogo.efeito seja 1;
+                    */
+                    jogo.tipo = JOGADA;
+                }
+                else{
+                    compraCartas(&hand, 1, &jogo);
+                    imprimirCartas(&hand);
+                    printf("Carta em jogo é:\n");        
+                    imprimeCarta(jogo.jogada);
+                    printf("\n");                            
+                    jogo.tipo = PASSAVEZ;
+                }
+                
             break;
             case UNO:
                 recebe_uno(&jogo,player);
@@ -269,10 +366,11 @@ int main(int argc, char **argv){
                 */            
             break;
             case EMPATE:
+                status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
                 recebe_empate(&jogo,player);
             break;
         }
-         status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
+        status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
     }  
     return 0;
 }

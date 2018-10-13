@@ -74,7 +74,7 @@ void compraCartas(Mao *hand,int qnt_compra, Game * jogo){
              * Subtrai a "qnt_compra" do contador de cartas do baralho para que nenhum dos 
              * usuário compre cartas alem do final do baralho..
             */
-            jogo->qnt_cartas = jogo->qnt_cartas-1;
+            jogo->qnt_cartas = jogo->qnt_cartas - 1;
         } 
         
         /**
