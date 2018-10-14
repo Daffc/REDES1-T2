@@ -68,7 +68,7 @@ int compraCartas(Mao *hand,int qnt_compra, Game * jogo){
             */
             aux->proxima = malloc(sizeof(CartaMao));
             aux = aux->proxima;
-            aux->carta = *(jogo->baralho + (jogo->qnt_cartas - i));
+            aux->carta = jogo->baralho [jogo->qnt_cartas - 1];
             
             hand->qnt_cartas ++;
             /**
