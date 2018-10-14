@@ -109,9 +109,7 @@ void imprimeCarta(Carta carta){
 void imprimirCartas(Mao *hand){
         system("clear");
         /**
-        * ------------------------------------------------------------------
-        * LEITURA DE CARTAS DA MÃO DE USUÁRIO, EXEMPLO PARA USO EM OUTRAS LOCALIDADES. 
-        * EXCLUIR APOS USO.
+        * LEITURA DE CARTAS DA MÃO DE USUÁRIO. 
         */
         CartaMao *aux = hand->cartas->proxima;
 
@@ -119,11 +117,11 @@ void imprimirCartas(Mao *hand){
 
         while(aux){
 
+            printf("Posicão %d\t Carta: ", posicao);
+            
             /**
              * Verifica a cor da carta atual e imprime esta carta de acordo com a corinformada.
             */
-            
-            printf("Posicão %d\t Carta: ", posicao);
             imprimeCarta(aux->carta);
             printf("\n");
 
@@ -309,7 +307,8 @@ int main(int argc, char **argv){
                 scanf("%d", &escolha_carta); 
 
                 /**
-                * Entra em laço caso usuário tenha digitado algum valor inválido.
+                * Entra em laço caso usuário tenha digitado algum valor inválido (menor que -1 ou maior ou igual que a quantidade 
+                * de cartas na mão).
                 */
                 while(escolha_carta < -1 || escolha_carta > hand.qnt_cartas){
                     imprimirCartas(&hand);
@@ -330,7 +329,6 @@ int main(int argc, char **argv){
                     
                     if(atual->carta.cor != jogo.jogada.cor && atual->carta.valor != jogo.jogada.valor){
                         goto ESCOLHA;
-
                     }
 
                     anterior->proxima = atual->proxima;
@@ -338,17 +336,25 @@ int main(int argc, char **argv){
                     free(atual);
                     hand.qnt_cartas --;
 
-                    /**
-                     * Jogador atual recebe mensagem de jogador anterior e faz sua jogada a menos que carta jogada seja PULAR e jogo.efeito seja 1;
-                    */
                     jogo.tipo = JOGADA;
                 }
                 else{
-                    compraCartas(&hand, 1, &jogo);
+                    int compra = compraCartas(&hand, 1, &jogo);
+                    
                     imprimirCartas(&hand);
+
                     printf("Carta em jogo é:\n");        
                     imprimeCarta(jogo.jogada);
-                    printf("\n");                            
+                    printf("\n");    
+
+                    if(!compra){
+                        printf("Baralho não possui mais cartas para serem compradas.\n");
+                    }
+
+                    printf("Aguarde a Próxima Jogada.\n"); 
+
+
+                    jogo.player = (jogo.player + 1) % NUM_JOGADORES;                  
                     jogo.tipo = PASSAVEZ;
                 }
                 
