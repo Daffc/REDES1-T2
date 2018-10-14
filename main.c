@@ -13,11 +13,12 @@
 /**
  * Definição de cores utilizadas para printar cartas.
 */
-#define ANSI_COLOR_RED     "\x1b[31m\x1b[47m"
-#define ANSI_COLOR_GREEN   "\x1b[32m\x1b[47m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m\x1b[47m"
-#define ANSI_COLOR_BLUE    "\x1b[34m\x1b[47m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_COLOR_BACKGOURND   "\x1b[47m"
+#define ANSI_COLOR_RED          "\x1b[31m"
+#define ANSI_COLOR_GREEN        "\x1b[32m"
+#define ANSI_COLOR_YELLOW       "\x1b[33m"
+#define ANSI_COLOR_BLUE         "\x1b[34m"
+#define ANSI_COLOR_RESET        "\x1b[0m"
 
 
 /**
@@ -89,24 +90,34 @@ void inicia_cliente(int *file_desc_client,struct hostent *h_client,struct sockad
 
 }
 
+void limparEntrada(){
+    /**
+     * Limpa Buffer de entrada padrão para que pausas possam ocorrer durante o programa.
+    */
+    int ch;
 
+    do
+        ch = fgetc ( stdin ); 
+    while ( ch != EOF && ch != '\n' ); 
 
+    clearerr ( stdin );
+}
 void imprimeCarta(Carta carta){
     /**
      * Define a cor impressa de acordo com a cor da carta informada.
     */
     switch(carta.cor){
         case VERDE:
-            printf(ANSI_COLOR_GREEN);
+            printf(ANSI_COLOR_GREEN ANSI_COLOR_BACKGOURND);
         break;
         case VERMELHO:
-            printf(ANSI_COLOR_RED);
+            printf(ANSI_COLOR_RED ANSI_COLOR_BACKGOURND);
         break;
         case AZUL:
-            printf(ANSI_COLOR_BLUE);
+            printf(ANSI_COLOR_BLUE ANSI_COLOR_BACKGOURND);
         break;
         case AMARELO:
-            printf(ANSI_COLOR_YELLOW);
+            printf(ANSI_COLOR_YELLOW ANSI_COLOR_BACKGOURND);
         break;                
     }
 
@@ -148,25 +159,39 @@ void imprimirCartas(Mao *hand){
 
 void impressaoPadrao(Mao *hand, Game *jogo){
     imprimirCartas(hand);
+    printf("\n\n\n\n");            
     printf("Carta em jogo é:\n");        
     imprimeCarta(jogo->jogada);
-    printf("\n");     
+    printf("\n\n\n");     
 }
 
-/**
- * Passa a vez para o próximo jogador.
-*/
 void passaVez(Game *jogo){
+    /**
+     * Passa a vez para o próximo jogador.
+    */
     jogo->player = (jogo->player + 1) % NUM_JOGADORES;                  
     jogo->tipo = PASSAVEZ;   
 }
 
-void recebe_uno(struct Game *jogo,int player){
+void recebe_uno(struct Game *jogo, Mao * hand, int player){
+    impressaoPadrao(hand, jogo);
+
     if(jogo->player == player){
+        /**
+         * Pausa programa para que todos os jogadores saibam do anuncio do UNO.
+        */
+        printf(ANSI_COLOR_GREEN  "UNO foi anunciao !!!\n" ANSI_COLOR_RESET);
+        printf("Precione [ENTER] para proseguir o jogo:\n");
+        limparEntrada();
+
+        fflush (stdout);
+        getchar();  
+
+        impressaoPadrao(hand, jogo);
         passaVez(jogo);
     }else{
-        printf("O player %d declarou UNO , bora jogar uma para ele comprar",jogo->player);        
-        // imprime carta jogo->jogada
+        printf(ANSI_COLOR_RED "O player %d declarou UNO !!!" ANSI_COLOR_RESET, jogo->player);        
+        printf("Bora jogar uma para ele comprar\n");        
     }
 }
 
@@ -196,6 +221,7 @@ void realiza_jogada(Mao *hand, Game *jogo){
      * ou '-1' para comprar uma nova carta.
     */
     impressaoPadrao(hand, jogo);                       
+    printf(ANSI_COLOR_GREEN "SUA VEZ !!!\n" ANSI_COLOR_RESET);
     printf("Informe a posição da carta de sua jogada dentre as opções acima ou -1 para comprar uma carta:\n");
     scanf("%d", &escolha_carta); 
 
@@ -205,6 +231,7 @@ void realiza_jogada(Mao *hand, Game *jogo){
     */
     while(escolha_carta < -1 || escolha_carta >= hand->qnt_cartas){
         impressaoPadrao(hand, jogo);        
+        printf(ANSI_COLOR_GREEN "SUA VEZ !!!\n" ANSI_COLOR_RESET);        
         printf("Valor inválido, escolha apenas entre as opções acima ou -1 para comprar uma carta:\n");
         scanf("%d", &escolha_carta);                         
     }
@@ -287,7 +314,7 @@ int main(int argc, char **argv){
         exit(1);
     }
 
-    int player = atoi(argv[5]), escolha_carta;
+    int player = atoi(argv[5]);
     int file_desc_server;
     struct hostent h;  
     struct sockaddr_in server; 
@@ -336,14 +363,15 @@ int main(int argc, char **argv){
         /**
          * Define a primeira jogada do jogo.
         */
-        jogo.jogada = jogo.baralho[jogo.qnt_cartas -1];
+        jogo.jogada = jogo.baralho[jogo.qnt_cartas - 1];
         jogo.qnt_cartas --;
 
         /**
          * Espera por entrada de usuário para que jogo prossiga.
         */
-        printf("Precione ENTER para iniciar a distribuição de cartas.\n");
-        getchar();      
+        printf("Precione [Enter] para iniciar a distribuição de cartas.\n");
+        fflush (stdout);
+        getchar();     
         
         status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
         if(status_send < 0){
@@ -362,8 +390,8 @@ int main(int argc, char **argv){
         switch(jogo.tipo){
 
             /**
-             * - Menságem passa pelos jogadores distribuindo cartas.
-             * - Ao chegar no jogador '0'esse deve realizar a primeira jogada.
+             * - Mensagem passa pelos jogadores distribuindo cartas.
+             * - Ao chegar no jogador '0' esse deve realizar a primeira jogada.
             */
             case DISTRIBUINDO:
 
@@ -387,7 +415,10 @@ int main(int argc, char **argv){
                 
                 // Caso jogador que realizou a jogada seja o que recebeu a menságem, bastão é passado.
                 if(jogo.player == player){
-                    passaVez(&jogo);
+                    if(hand.qnt_cartas != 1)
+                        passaVez(&jogo);
+                    else    
+                        jogo.tipo = UNO;
                 }
             break;
 
@@ -438,18 +469,28 @@ int main(int argc, char **argv){
                 else
                     realiza_jogada(&hand, &jogo);                      
             break;
+
+            /**
+             * - Jogador atual recebe menságem que que jogador indicaro em jogo.player possui apenas uma carta.
+             * - Se jogador = Jogador.player, passar a vez para próximo jogador.
+            */
             case UNO:
-                recebe_uno(&jogo,player);
-                /**
-                 * Jogador atual recebe a mensagem de que jogador contido em jogo.player ira ficar com aṕenas uma carta.
-                */
+                recebe_uno(&jogo, &hand, player);
             break;
+
+            /**
+             * - Anuncia fim de jogo e quem foi o campeão a todos os jogadores.
+            */
             case FIM:
                 recebe_fim(&jogo,player);
                 /**
                 * Jogador atual recebe mensagem de que o jogo acabou, informando o vencedor.
                 */            
             break;
+
+            /**
+             * - Anuncia fim de jogo e que houve empate ( não é mais possivel efetuar jogadas ).
+            */
             case EMPATE:
                 status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
                 recebe_empate(&jogo,player);
