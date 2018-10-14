@@ -68,7 +68,7 @@
     * Recebe ponteiros para mão, e baralho e a quantidade de cartas contidas no baralho, 
     * e finaliza tendo as novas cartas compradas adicionadas a mão indicada.
     */
-    void compraCartas(Mao *hand,int qnt_compra, Game * jogo);
+    int compraCartas(Mao *hand,int qnt_compra, Game * jogo);
 
 
 #endif 

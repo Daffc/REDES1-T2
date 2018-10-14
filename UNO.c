@@ -45,7 +45,7 @@ void GeraBaralho(Carta * baralho){
     Embaralha(baralho);
 }
 
-void compraCartas(Mao *hand,int qnt_compra, Game * jogo){
+int compraCartas(Mao *hand,int qnt_compra, Game * jogo){
         CartaMao * aux;
         int i;
 
@@ -67,8 +67,9 @@ void compraCartas(Mao *hand,int qnt_compra, Game * jogo){
              * "aux" para a proxima carta a ser comprada.
             */
             aux->proxima = malloc(sizeof(CartaMao));
-            aux->proxima->carta = *(jogo->baralho + (jogo->qnt_cartas - i));
             aux = aux->proxima;
+            aux->carta = *(jogo->baralho + (jogo->qnt_cartas - i));
+            
             hand->qnt_cartas ++;
             /**
              * Subtrai a "qnt_compra" do contador de cartas do baralho para que nenhum dos 
@@ -76,12 +77,19 @@ void compraCartas(Mao *hand,int qnt_compra, Game * jogo){
             */
             jogo->qnt_cartas = jogo->qnt_cartas - 1;
         } 
+
+        /**
+         * Define como NULL o ponteiro para próxima carta da ultima carta da mão, para que esta possa ser identificada.
+        */
+        aux->proxima = NULL;
         
         /**
          * Verifica pela variável "i" se o jogador conseguiu comprar a "qnt_compra" pretendida, 
-         * caso contrário, informa ao usuário que o baralho acabou.
+         * caso contrário, retorna que quantidade de cartas não pode ser complemtamente comprada.
         */
         if((qnt_compra + 1) != i){
-            printf("Baralho não possui mais cartas para serem compradas.\n");
+            return 0;
         }
+
+        return 1;
 }
