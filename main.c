@@ -198,10 +198,8 @@ void recebe_uno(struct Game *jogo, Mao * hand, int player){
 void recebe_fim(struct Game *jogo,int player){
     if(jogo->player == player){
         printf("O jogo acabou ganhei seus pato");
-        exit(1);
     }else{
         printf("O player %d ganhou o jogo",jogo->player);  
-        exit(1);
     }
 }
 
@@ -357,7 +355,7 @@ int main(int argc, char **argv){
 
 
         hand.qnt_cartas = 0;
-        compraCartas(&hand, 7, &jogo);
+        compraCartas(&hand, 2, &jogo);
         imprimirCartas(&hand);
 
         /**
@@ -396,7 +394,7 @@ int main(int argc, char **argv){
             case DISTRIBUINDO:
 
                 if(player){
-                    compraCartas(&hand, 7, &jogo);
+                    compraCartas(&hand, 2, &jogo);
                     impressaoPadrao(&hand, &jogo);      
                     printf("Aguarde a Próxima jogada.\n");
                 }
@@ -415,10 +413,12 @@ int main(int argc, char **argv){
                 
                 // Caso jogador que realizou a jogada seja o que recebeu a menságem, bastão é passado.
                 if(jogo.player == player){
-                    if(hand.qnt_cartas != 1)
+                    if(hand.qnt_cartas > 1)
                         passaVez(&jogo);
-                    else    
+                    if(hand.qnt_cartas == 1)    
                         jogo.tipo = UNO;
+                    if(hand.qnt_cartas == 0)    
+                        jogo.tipo = FIM;
                 }
             break;
 
@@ -483,9 +483,8 @@ int main(int argc, char **argv){
             */
             case FIM:
                 recebe_fim(&jogo,player);
-                /**
-                * Jogador atual recebe mensagem de que o jogo acabou, informando o vencedor.
-                */            
+                status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
+                exit(1);       
             break;
 
             /**
@@ -495,7 +494,7 @@ int main(int argc, char **argv){
                 status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
                 recebe_empate(&jogo,player);
             break;
-        }
+        }                
         status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
     }  
     return 0;
