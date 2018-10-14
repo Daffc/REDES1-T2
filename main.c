@@ -299,6 +299,10 @@ int main(int argc, char **argv){
 
                 ESCOLHA:
                 
+                /**
+                 * Cartas do jogador são impressas e este deve escolher qual de suas cartas ele irá jogar, 
+                 * ou '-1' para comprar uma nova carta.
+                */
                 imprimirCartas(&hand);
                 printf("Carta em jogo é:\n");        
                 imprimeCarta(jogo.jogada);
@@ -319,34 +323,61 @@ int main(int argc, char **argv){
                     scanf("%d", &escolha_carta);                         
                 }
                 
+                /**
+                * Define ponteiros de controle para gerenciamento de catas da mão do jogador.
+                */
                 CartaMao *atual = hand.cartas->proxima, *anterior = hand.cartas;
 
-                if(escolha_carta > -1){             
+
+                /**
+                 * Caso jogador tenha escolhido jogar uma de suas cartas.
+                */
+                if(escolha_carta > -1){      
+
+                    /**
+                    * Busca por carta escolhida por jogador.
+                    */
                     for(int i = 0; i < escolha_carta; i++){
                         anterior = atual;
                         atual = atual->proxima;  
                     }
                     
+                    /**
+                    * Caso carta escolhida não possua cor ou valor compativel com jogada atual, jogador deve volvtar a fase de escolha.
+                    */
                     if(atual->carta.cor != jogo.jogada.cor && atual->carta.valor != jogo.jogada.valor){
                         goto ESCOLHA;
                     }
 
+                    /**
+                     * Caso carta escolhida seja válida, carta é indicada como jogada atual e é removida da mão do jogador.
+                    */
                     anterior->proxima = atual->proxima;
                     jogo.jogada = atual->carta;
                     free(atual);
                     hand.qnt_cartas --;
 
+                    /**
+                     * Indica para os demais jogadores a nova jogada.
+                    */
                     jogo.tipo = JOGADA;
                 }
                 else{
+
+                    /**
+                     * Compra nova carta e guarda estado da compra em "compra"
+                    */
                     int compra = compraCartas(&hand, 1, &jogo);
-                    
+
                     imprimirCartas(&hand);
 
                     printf("Carta em jogo é:\n");        
                     imprimeCarta(jogo.jogada);
                     printf("\n");    
 
+                    /**
+                     * Informa ao jogador que não existem mais cartas a serem compradas no baralho.
+                    */
                     if(!compra){
                         printf("Baralho não possui mais cartas para serem compradas.\n");
                     }
@@ -354,6 +385,9 @@ int main(int argc, char **argv){
                     printf("Aguarde a Próxima Jogada.\n"); 
 
 
+                    /**
+                     * Passa a vez para o próximo jogador.
+                    */
                     jogo.player = (jogo.player + 1) % NUM_JOGADORES;                  
                     jogo.tipo = PASSAVEZ;
                 }
