@@ -90,20 +90,34 @@ void inicia_cliente(int *file_desc_client,struct hostent *h_client,struct sockad
 }
 
 void imprimeCarta(Carta carta){
+    /**
+     * Define a cor impressa de acordo com a cor da carta informada.
+    */
     switch(carta.cor){
         case VERDE:
-            printf(ANSI_COLOR_GREEN "%02d" ANSI_COLOR_RESET,  carta.valor);
+            printf(ANSI_COLOR_GREEN);
         break;
         case VERMELHO:
-            printf(ANSI_COLOR_RED "%02d" ANSI_COLOR_RESET, carta.valor);
+            printf(ANSI_COLOR_RED);
         break;
         case AZUL:
-            printf(ANSI_COLOR_BLUE "%02d" ANSI_COLOR_RESET, carta.valor);
+            printf(ANSI_COLOR_BLUE);
         break;
         case AMARELO:
-            printf(ANSI_COLOR_YELLOW "%02d" ANSI_COLOR_RESET, carta.valor);
+            printf(ANSI_COLOR_YELLOW);
         break;                
     }
+
+    /**
+     * Define o valor a ser impresso e desabilita estilo após impressão.
+    */
+    if(carta.valor < 10)
+        printf("%02d" ANSI_COLOR_RESET,  carta.valor);
+    if(carta.valor == MAIS2)
+        printf("+2" ANSI_COLOR_RESET);
+    if(carta.valor == PULAR)
+        printf("ØØ" ANSI_COLOR_RESET);
+        
 }
 
 void imprimirCartas(Mao *hand){
