@@ -197,9 +197,9 @@ void recebe_uno(struct Game *jogo, Mao * hand, int player){
 
 void recebe_fim(struct Game *jogo,int player){
     if(jogo->player == player){
-        printf("O jogo acabou ganhei seus pato");
+        printf("O jogo acabou ganhei seus pato\n");
     }else{
-        printf("O player %d ganhou o jogo",jogo->player);  
+        printf("O player %d ganhou o jogo\n",jogo->player);  
     }
 }
 
@@ -484,7 +484,7 @@ int main(int argc, char **argv){
             case FIM:
                 recebe_fim(&jogo,player);
                 status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
-                exit(1);       
+                exit(0);       
             break;
 
             /**
