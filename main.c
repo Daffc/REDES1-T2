@@ -89,6 +89,8 @@ void inicia_cliente(int *file_desc_client,struct hostent *h_client,struct sockad
 
 }
 
+
+
 void imprimeCarta(Carta carta){
     /**
      * Define a cor impressa de acordo com a cor da carta informada.
@@ -111,7 +113,7 @@ void imprimeCarta(Carta carta){
     /**
      * Define o valor a ser impresso e desabilita estilo após impressão.
     */
-    if(carta.valor < 10)
+    if(carta.valor <= NOVE)
         printf("%02d" ANSI_COLOR_RESET,  carta.valor);
     if(carta.valor == MAIS2)
         printf("+2" ANSI_COLOR_RESET);
@@ -144,14 +146,14 @@ void imprimirCartas(Mao *hand){
         }        
 }
 
+void impressaoPadrao(Mao *hand, Game *jogo){
+    imprimirCartas(hand);
+    printf("Carta em jogo é:\n");        
+    imprimeCarta(jogo->jogada);
+    printf("\n");     
+}
 
-void recebe_jogada(struct Game *jogo, int player){
-   
-    printf("A carta do em jogo é:\n");        
-    imprimeCarta(jogo->jogada);             
-    printf("\n");
-    printf("Aguarde a Próxima Jogada.\n");     
-    
+void recebe_jogada(struct Game *jogo, int player){    
     if(jogo->player == player){
         jogo->player = (jogo->player + 1) % NUM_JOGADORES;
         jogo->tipo = PASSAVEZ;
@@ -191,10 +193,7 @@ void realiza_jogada(Mao *hand, Game *jogo){
      * Cartas do jogador são impressas e este deve escolher qual de suas cartas ele irá jogar, 
      * ou '-1' para comprar uma nova carta.
     */
-    imprimirCartas(hand);
-    printf("Carta em jogo é:\n");        
-    imprimeCarta(jogo->jogada);
-    printf("\n");                        
+    impressaoPadrao(hand, jogo);                       
     printf("Informe a posição da carta de sua jogada dentre as opções acima ou -1 para comprar uma carta:\n");
     scanf("%d", &escolha_carta); 
 
@@ -203,10 +202,7 @@ void realiza_jogada(Mao *hand, Game *jogo){
     * de cartas na mão).
     */
     while(escolha_carta < -1 || escolha_carta >= hand->qnt_cartas){
-        imprimirCartas(hand);
-        printf("Carta em jogo é:\n");        
-        imprimeCarta(jogo->jogada);
-        printf("\n");        
+        impressaoPadrao(hand, jogo);        
         printf("Valor inválido, escolha apenas entre as opções acima ou -1 para comprar uma carta:\n");
         scanf("%d", &escolha_carta);                         
     }
@@ -263,11 +259,7 @@ void realiza_jogada(Mao *hand, Game *jogo){
         */
         int compra = compraCartas(hand, 1, jogo);
 
-        imprimirCartas(hand);
-
-        printf("Carta em jogo é:\n");        
-        imprimeCarta(jogo->jogada);
-        printf("\n");    
+        impressaoPadrao(hand, jogo);
 
         /**
          * Informa ao jogador que não existem mais cartas a serem compradas no baralho.
@@ -373,32 +365,56 @@ int main(int argc, char **argv){
             exit(-1);
         }
         switch(jogo.tipo){
+
+            /**
+             * - Menságem passa pelos jogadores distribuindo cartas.
+             * - Ao chegar no jogador '0'esse deve realizar a primeira jogada.
+            */
             case DISTRIBUINDO:
 
                 if(player){
                     compraCartas(&hand, 7, &jogo);
-                    imprimirCartas(&hand);
-                    printf("Carta em jogo é:\n");        
-                    imprimeCarta(jogo.jogada);
-                    printf("\n");          
-                    printf("Aguarde a Primeira Jogada.\n");
+                    impressaoPadrao(&hand, &jogo);      
+                    printf("Aguarde a Próxima jogada.\n");
                 }
                 else{
                     realiza_jogada(&hand, &jogo);      
                 } 
 
             break;
+
             /**
              * - Jogador atual lê e imprime a jogada de outro jogador.
              * - Jogador atual recebe sua própria jogada e passa a vez para próximo jogador.
             */
             case JOGADA:
-                imprimirCartas(&hand);
+                impressaoPadrao(&hand, &jogo);
                 recebe_jogada(&jogo, player);
             break;
+
+            /**
+            * - Jogador atual possui o bastão.
+            * - Jogador debe verificar carta de "jogada" e reagir a ela caso seja uma carta de efeito (MAIS2 ou PULAR), ou realizar uma jogada.
+            */
             case PASSAVEZ:
-                realiza_jogada(&hand, &jogo);                
-                
+                if(jogo.efeito){                    
+                    if(jogo.jogada.valor == MAIS2){
+                        realiza_jogada(&hand, &jogo); 
+                        jogo.efeito = 0;
+                    }
+                    if(jogo.jogada.valor == PULAR){
+                        printf("Você foi pulado =/.\n"); 
+
+                        /**
+                         * Passa a vez para o próximo jogador.
+                        */
+                        jogo.player = (jogo.player + 1) % NUM_JOGADORES;                  
+                        jogo.efeito = 0;
+                        jogo.tipo = PASSAVEZ;                    
+                    }          
+                }
+                else
+                    realiza_jogada(&hand, &jogo);                      
             break;
             case UNO:
                 recebe_uno(&jogo,player);
