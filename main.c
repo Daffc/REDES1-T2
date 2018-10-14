@@ -287,23 +287,6 @@ void realiza_jogada(Mao *hand, Game *jogo){
     }
 }
 
-/**
- * 
-*/
-void defineJogada(Game *jogo, Mao * hand, int posicao){
-    CartaMao *atual = hand->cartas->proxima, *anterior = hand->cartas;
-
-    for(int i = 0; i < posicao; i++){
-        anterior = atual;
-        atual = atual->proxima;  
-    }
-    anterior->proxima = atual->proxima;
-    jogo->jogada = atual->carta;
-    free(atual);
-    hand->qnt_cartas --;
-}
-
-
 int main(int argc, char **argv){
 
     printf("%d\n",argc);
@@ -361,8 +344,13 @@ int main(int argc, char **argv){
 
         hand.qnt_cartas = 0;
         compraCartas(&hand, 7, &jogo);
-
         imprimirCartas(&hand);
+
+        /**
+         * Define a primeira jogada do jogo.
+        */
+        jogo.jogada = jogo.baralho[jogo.qnt_cartas -1];
+        jogo.qnt_cartas --;
 
         /**
          * Espera por entrada de usuário para que jogo prossiga.
@@ -390,25 +378,13 @@ int main(int argc, char **argv){
                 if(player){
                     compraCartas(&hand, 7, &jogo);
                     imprimirCartas(&hand);
+                    printf("Carta em jogo é:\n");        
+                    imprimeCarta(jogo.jogada);
+                    printf("\n");          
                     printf("Aguarde a Primeira Jogada.\n");
                 }
                 else{
-                    imprimirCartas(&hand);
-                    printf("Informe a posição da carta de sua jogada dentre as opções acima:\n");
-                    scanf("%d", &escolha_carta); 
-                    
-                    /**
-                    * Entra em laço caso usuário tenha digitado algum valor inválido.
-                    */
-                    while(escolha_carta < 0 || escolha_carta >= hand.qnt_cartas){
-                        imprimirCartas(&hand);                        
-                        printf("Valor inválido, escolha apenas entre as opções acima:\n");
-                        scanf("%d", &escolha_carta);                         
-                    }
-                    
-                    defineJogada(&jogo, &hand, escolha_carta);
-                    
-                    jogo.tipo = JOGADA;
+                    realiza_jogada(&hand, &jogo);      
                 } 
 
             break;
