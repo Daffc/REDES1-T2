@@ -153,15 +153,17 @@ void impressaoPadrao(Mao *hand, Game *jogo){
     printf("\n");     
 }
 
-void recebe_jogada(struct Game *jogo, int player){    
-    if(jogo->player == player){
-        jogo->player = (jogo->player + 1) % NUM_JOGADORES;
-        jogo->tipo = PASSAVEZ;
-    }
+/**
+ * Passa a vez para o próximo jogador.
+*/
+void passaVez(Game *jogo){
+    jogo->player = (jogo->player + 1) % NUM_JOGADORES;                  
+    jogo->tipo = PASSAVEZ;   
 }
+
 void recebe_uno(struct Game *jogo,int player){
     if(jogo->player == player){
-        jogo->tipo = PASSAVEZ;
+        passaVez(jogo);
     }else{
         printf("O player %d declarou UNO , bora jogar uma para ele comprar",jogo->player);        
         // imprime carta jogo->jogada
@@ -267,15 +269,8 @@ void realiza_jogada(Mao *hand, Game *jogo){
         if(!compra){
             printf("Baralho não possui mais cartas para serem compradas.\n");
         }
-
         printf("Aguarde a Próxima Jogada.\n"); 
-
-
-        /**
-         * Passa a vez para o próximo jogador.
-        */
-        jogo->player = (jogo->player + 1) % NUM_JOGADORES;                  
-        jogo->tipo = PASSAVEZ;
+        passaVez(jogo);
     }
 }
 
@@ -389,7 +384,11 @@ int main(int argc, char **argv){
             */
             case JOGADA:
                 impressaoPadrao(&hand, &jogo);
-                recebe_jogada(&jogo, player);
+                
+                // Caso jogador que realizou a jogada seja o que recebeu a menságem, bastão é passado.
+                if(jogo.player == player){
+                    passaVez(&jogo);
+                }
             break;
 
             /**
@@ -397,22 +396,45 @@ int main(int argc, char **argv){
             * - Jogador debe verificar carta de "jogada" e reagir a ela caso seja uma carta de efeito (MAIS2 ou PULAR), ou realizar uma jogada.
             */
             case PASSAVEZ:
-                if(jogo.efeito){                    
+                /**
+                 * Caso carta de efetito:
+                */
+                if(jogo.efeito){   
+
+                    /**
+                     * Se +2, compra cartas e passa a vez 
+                    */                 
                     if(jogo.jogada.valor == MAIS2){
-                        realiza_jogada(&hand, &jogo); 
-                        jogo.efeito = 0;
-                    }
-                    if(jogo.jogada.valor == PULAR){
-                        printf("Você foi pulado =/.\n"); 
+
+                        int compra = compraCartas(&hand, 2, &jogo);
+
+                        impressaoPadrao(&hand, &jogo);
+                        printf("Jogaram um '+2' para você =(.\n"); 
 
                         /**
-                         * Passa a vez para o próximo jogador.
+                         * Informa ao jogador que não existem mais cartas a serem compradas no baralho.
                         */
-                        jogo.player = (jogo.player + 1) % NUM_JOGADORES;                  
+                        if(!compra){
+                            printf("Baralho não possui mais cartas para serem compradas.\n");
+                        }
+
+                        passaVez(&jogo);
+
+                        // Desabilita efeito da carta.
                         jogo.efeito = 0;
-                        jogo.tipo = PASSAVEZ;                    
+                    }
+
+                    if(jogo.jogada.valor == PULAR){
+                        printf("Você foi pulado =/.\n"); 
+                        passaVez(&jogo);
+                        
+                        // Desabilita efeito da carta.
+                        jogo.efeito = 0;
                     }          
                 }
+                /**
+                 * Caso efeito esteja desabilitado, carta de jogada deve ser tratada como uma carta comum.
+                */
                 else
                     realiza_jogada(&hand, &jogo);                      
             break;
