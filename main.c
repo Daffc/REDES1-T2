@@ -202,7 +202,7 @@ void realiza_jogada(Mao *hand, Game *jogo){
     * Entra em laço caso usuário tenha digitado algum valor inválido (menor que -1 ou maior ou igual que a quantidade 
     * de cartas na mão).
     */
-    while(escolha_carta < -1 || escolha_carta > hand->qnt_cartas){
+    while(escolha_carta < -1 || escolha_carta >= hand->qnt_cartas){
         imprimirCartas(hand);
         printf("Carta em jogo é:\n");        
         imprimeCarta(jogo->jogada);
@@ -287,6 +287,9 @@ void realiza_jogada(Mao *hand, Game *jogo){
     }
 }
 
+/**
+ * 
+*/
 void defineJogada(Game *jogo, Mao * hand, int posicao){
     CartaMao *atual = hand->cartas->proxima, *anterior = hand->cartas;
 
@@ -397,7 +400,7 @@ int main(int argc, char **argv){
                     /**
                     * Entra em laço caso usuário tenha digitado algum valor inválido.
                     */
-                    while(escolha_carta < 0 || escolha_carta > hand.qnt_cartas){
+                    while(escolha_carta < 0 || escolha_carta >= hand.qnt_cartas){
                         imprimirCartas(&hand);                        
                         printf("Valor inválido, escolha apenas entre as opções acima:\n");
                         scanf("%d", &escolha_carta);                         
