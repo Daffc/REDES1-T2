@@ -24,7 +24,7 @@
 /**
  * !!!!!!!!!!!!!!!PARA TESTE COM 3 JOGADORES, MUDAR NO CASO DE MAIS JOGADORES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 */
-#define NUM_JOGADORES 3
+#define NUM_JOGADORES 2
 
 
 
@@ -299,6 +299,7 @@ void realiza_jogada(Mao *hand, Game *jogo){
             printf("Baralho não possui mais cartas para serem compradas.\n");
             jogo->deadlock++;            
         }
+        printf("%d\n",jogo->deadlock);
         if(jogo->deadlock == NUM_JOGADORES){
                 avisaEmpate(jogo);
         }else{
@@ -358,9 +359,10 @@ int main(int argc, char **argv){
 
         jogo.tipo = DISTRIBUINDO;
         jogo.player = 0;
-        jogo.qnt_cartas = 56;
+        jogo.qnt_cartas = 20;
         jogo.jogada;   
         jogo.efeito = 0;
+        jogo.deadlock = 0;
 
 
         hand.qnt_cartas = 0;
