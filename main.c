@@ -24,7 +24,9 @@
 /**
  * !!!!!!!!!!!!!!!PARA TESTE COM 3 JOGADORES, MUDAR NO CASO DE MAIS JOGADORES !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 */
-#define NUM_JOGADORES 2
+#define NUM_JOGADORES       4
+#define PRIMEIRA_COPRA      7
+#define QUANTIDADE_CARTAS   56
 
 
 
@@ -187,8 +189,8 @@ void recebe_uno(struct Game *jogo, Mao * hand, int player){
         */
         printf(ANSI_COLOR_GREEN  "UNO foi anunciao !!!\n" ANSI_COLOR_RESET);
         printf("Precione [ENTER] para proseguir o jogo:\n");
+        
         limparEntrada();
-
         fflush (stdout);
         getchar();  
 
@@ -201,15 +203,20 @@ void recebe_uno(struct Game *jogo, Mao * hand, int player){
 }
 
 void recebe_fim(struct Game *jogo,int player){
+    system("clear");
     if(jogo->player == player){
-        printf("O jogo acabou ganhei seus pato\n");
+        printf(ANSI_COLOR_GREEN "O jogo acabou ganhei seus pato" ANSI_COLOR_RESET);
+        printf("\n");  
     }else{
-        printf("O player %d ganhou o jogo\n",jogo->player);  
+        printf(ANSI_COLOR_RED "O player %d ganhou o jogo" ANSI_COLOR_RESET,jogo->player);  
+        printf("\n");  
     }
 }
 
 void recebe_empate(struct Game *jogo){
-    printf("O jogo acabou em empate, ninguem ganhou\n");     
+    system("clear");
+    printf(ANSI_COLOR_RED "O jogo acabou em empate, ninguem ganhou"ANSI_COLOR_RESET); 
+    printf("\n");  
 }
 
 void realiza_jogada(Mao *hand, Game *jogo){
@@ -297,9 +304,16 @@ void realiza_jogada(Mao *hand, Game *jogo){
         */
         if(!compra){
             printf("Baralho não possui mais cartas para serem compradas.\n");
+            
+            /**
+             * Soma a deadlock para verificar se ainda existem possibilidade de jogadas.
+            */
             jogo->deadlock++;            
         }
-        printf("%d\n",jogo->deadlock);
+
+        /**
+         * Caso deadlock seja igual ao número de jogadores, o jogo acaba em empate.
+        */
         if(jogo->deadlock == NUM_JOGADORES){
                 avisaEmpate(jogo);
         }else{
@@ -359,14 +373,14 @@ int main(int argc, char **argv){
 
         jogo.tipo = DISTRIBUINDO;
         jogo.player = 0;
-        jogo.qnt_cartas = 20;
+        jogo.qnt_cartas = QUANTIDADE_CARTAS;
         jogo.jogada;   
         jogo.efeito = 0;
         jogo.deadlock = 0;
 
 
         hand.qnt_cartas = 0;
-        compraCartas(&hand, 7, &jogo);
+        compraCartas(&hand, PRIMEIRA_COPRA , &jogo);
         imprimirCartas(&hand);
 
         /**
@@ -379,7 +393,7 @@ int main(int argc, char **argv){
          * Espera por entrada de usuário para que jogo prossiga.
         */
         printf("Precione [Enter] para iniciar a distribuição de cartas.\n");
-        // fflush (stdout);
+        fflush (stdout);
         getchar();     
         
         status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
@@ -405,7 +419,7 @@ int main(int argc, char **argv){
             case DISTRIBUINDO:
 
                 if(player){
-                    compraCartas(&hand, 7, &jogo);
+                    compraCartas(&hand, PRIMEIRA_COPRA , &jogo);
                     impressaoPadrao(&hand, &jogo);      
                     printf("Aguarde a Próxima jogada.\n");
                 }
@@ -424,6 +438,9 @@ int main(int argc, char **argv){
                 
                 // Caso jogador que realizou a jogada seja o que recebeu a menságem, bastão é passado.
                 if(jogo.player == player){
+                    /**
+                     * Caso uma jogada aconteça ainda existem cartas a serem jogadas ( deadlock = 0 );
+                    */
                     jogo.deadlock = 0;
                     if(hand.qnt_cartas > 1)
                         passaVez(&jogo);
@@ -468,7 +485,8 @@ int main(int argc, char **argv){
                     }
 
                     if(jogo.jogada.valor == PULAR){
-                        printf("Você foi pulado =/.\n"); 
+                        printf(ANSI_COLOR_RED "Você foi pulado =/." ANSI_COLOR_RESET); 
+                        printf("\n"); 
                         passaVez(&jogo);
                         
                         // Desabilita efeito da carta.
