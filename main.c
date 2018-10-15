@@ -165,6 +165,11 @@ void impressaoPadrao(Mao *hand, Game *jogo){
     printf("\n\n\n");     
 }
 
+void avisaEmpate(Game *jogo){
+    jogo->player = (jogo->player + 1) % NUM_JOGADORES;                  
+    jogo->tipo = EMPATE;  
+}
+
 void passaVez(Game *jogo){
     /**
      * Passa a vez para o próximo jogador.
@@ -203,9 +208,8 @@ void recebe_fim(struct Game *jogo,int player){
     }
 }
 
-void recebe_empate(struct Game *jogo,int player){   
-    printf("O jogo acabou em empate, ninguem ganhou");    
-    exit(1);   
+void recebe_empate(struct Game *jogo){
+    printf("O jogo acabou em empate, ninguem ganhou\n");     
 }
 
 void realiza_jogada(Mao *hand, Game *jogo){
@@ -293,9 +297,14 @@ void realiza_jogada(Mao *hand, Game *jogo){
         */
         if(!compra){
             printf("Baralho não possui mais cartas para serem compradas.\n");
+            jogo->deadlock++;            
         }
-        printf("Aguarde a Próxima Jogada.\n"); 
-        passaVez(jogo);
+        if(jogo->deadlock == NUM_JOGADORES){
+                avisaEmpate(jogo);
+        }else{
+            printf("Aguarde a Próxima Jogada.\n"); 
+            passaVez(jogo);
+        }        
     }
 }
 
@@ -355,7 +364,7 @@ int main(int argc, char **argv){
 
 
         hand.qnt_cartas = 0;
-        compraCartas(&hand, 2, &jogo);
+        compraCartas(&hand, 7, &jogo);
         imprimirCartas(&hand);
 
         /**
@@ -368,7 +377,7 @@ int main(int argc, char **argv){
          * Espera por entrada de usuário para que jogo prossiga.
         */
         printf("Precione [Enter] para iniciar a distribuição de cartas.\n");
-        fflush (stdout);
+        // fflush (stdout);
         getchar();     
         
         status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client));  
@@ -394,7 +403,7 @@ int main(int argc, char **argv){
             case DISTRIBUINDO:
 
                 if(player){
-                    compraCartas(&hand, 2, &jogo);
+                    compraCartas(&hand, 7, &jogo);
                     impressaoPadrao(&hand, &jogo);      
                     printf("Aguarde a Próxima jogada.\n");
                 }
@@ -413,6 +422,7 @@ int main(int argc, char **argv){
                 
                 // Caso jogador que realizou a jogada seja o que recebeu a menságem, bastão é passado.
                 if(jogo.player == player){
+                    jogo.deadlock = 0;
                     if(hand.qnt_cartas > 1)
                         passaVez(&jogo);
                     if(hand.qnt_cartas == 1)    
@@ -491,8 +501,9 @@ int main(int argc, char **argv){
              * - Anuncia fim de jogo e que houve empate ( não é mais possivel efetuar jogadas ).
             */
             case EMPATE:
+                recebe_empate(&jogo);
                 status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
-                recebe_empate(&jogo,player);
+                exit(0);
             break;
         }                
         status_send = sendto(file_desc_client, &jogo, sizeof(Game), 0, (struct sockaddr * ) &sockaddr_in_client,sizeof(sockaddr_in_client)); 
