@@ -197,7 +197,8 @@ void recebe_uno(struct Game *jogo, Mao * hand, int player){
         impressaoPadrao(hand, jogo);
         passaVez(jogo);
     }else{
-        printf(ANSI_COLOR_RED "O player %d declarou UNO !!!" ANSI_COLOR_RESET, jogo->player);        
+        printf(ANSI_COLOR_RED "O player %d declarou UNO !!!" ANSI_COLOR_RESET, jogo->player);    
+        printf("\n");
         printf("Bora jogar uma para ele comprar\n");        
     }
 }
@@ -330,6 +331,7 @@ int main(int argc, char **argv){
         exit(1);
     }
 
+
     int player = atoi(argv[5]);
     int file_desc_server;
     struct hostent h;  
@@ -398,6 +400,9 @@ int main(int argc, char **argv){
 
     }
 
+    printf("\n");
+    printf("Aguarde o jogador 0\n");
+
     while(1){      
         status_receive = recvfrom(file_desc_server, &jogo, sizeof(Game), 0, (struct sockaddr *) &server, &len);
         if(status_receive < 0){
@@ -462,8 +467,11 @@ int main(int argc, char **argv){
 
                         int compra = compraCartas(&hand, 2, &jogo);
 
-                        impressaoPadrao(&hand, &jogo);
-                        printf("Jogaram um '+2' para você =(.\n"); 
+                        impressaoPadrao(&hand, &jogo);  
+
+                        printf(ANSI_COLOR_RED "Jogaram um '+2' para você =(." ANSI_COLOR_RESET); 
+
+                        printf("\n"); 
 
                         /**
                          * Informa ao jogador que não existem mais cartas a serem compradas no baralho.
