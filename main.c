@@ -325,12 +325,6 @@ void realiza_jogada(Mao *hand, Game *jogo){
 
 int main(int argc, char **argv){
 
-    printf("%d\n",argc);
-
-    for( int i = 0 ; i < argc ; i++){
-        printf("Argumento = %d , elemento argv[%d] = %s\n", i ,i, argv[i] );
-    }
-
     if(argc != 6){
         printf("Forma de uso ./a.out server: <localhost> <porta> client: <hostname> <porta> player <numero>\n");
         exit(1);
