@@ -40,6 +40,8 @@
 //     return crc;
 // } 
 
+char table[256];
+
 
 void calcula_tabela_crc(char *table){
 
@@ -48,11 +50,8 @@ void calcula_tabela_crc(char *table){
     printf("Tamanho do arquivo:");
     printf("%d\n",strlen(table));
     int max = 256;
-    int dividendo;
-
     for(char i = 0 ; i < max ;i++){
         byteAtual = i;
-        /* calculate the CRC-8 value for current byte */
         for (int bit = 0; bit < 8; bit++)
         {
             if ((byteAtual & 0x80) != 0)
@@ -65,7 +64,20 @@ void calcula_tabela_crc(char *table){
                 byteAtual <<= 1;
             }
         }
-        /* store CRC value in lookup table */
-        table[dividendo] = byteAtual;
+        table[i] = byteAtual;
+    }
+}
+
+int calcula_crc(char *dados){
+
+    char crc = 0;
+    char tam = strlen(dados);
+
+    for(char i = 0 ; i < tam; i++){
+
+        char data = i ^ crc;
+        crc = table[i];
+
+    }
 
 }
